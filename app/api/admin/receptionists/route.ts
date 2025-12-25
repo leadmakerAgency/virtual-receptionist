@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
       },
     }
 
-    const agent = await elevenlabsClient.conversationalAI.agents.create({
+    const agent = await elevenlabsClient.conversationalAi.agents.create({
       name: body.name,
       conversation_config: agentConfig,
     })
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
     if (error) {
       // If Supabase insert fails, try to delete the agent from ElevenLabs
       try {
-        await elevenlabsClient.conversationalAI.agents.delete(agent.agent_id)
+        await elevenlabsClient.conversationalAi.agents.delete(agent.agent_id)
       } catch (deleteError) {
         console.error('Failed to cleanup agent:', deleteError)
       }

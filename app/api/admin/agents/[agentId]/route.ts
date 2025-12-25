@@ -17,7 +17,7 @@ export async function GET(
     }
 
     const { agentId } = await params
-    const agent = await elevenlabsClient.conversationalAI.agents.get(agentId)
+    const agent = await elevenlabsClient.conversationalAi.agents.get(agentId)
 
     return NextResponse.json({ agent })
   } catch (error: any) {
@@ -45,7 +45,7 @@ export async function PATCH(
     const { agentId } = await params
     const body: UpdateAgentRequest = await request.json()
 
-    const agent = await elevenlabsClient.conversationalAI.agents.update(agentId, body)
+    const agent = await elevenlabsClient.conversationalAi.agents.update(agentId, body)
 
     return NextResponse.json({ agent })
   } catch (error: any) {
@@ -71,7 +71,7 @@ export async function DELETE(
     }
 
     const { agentId } = await params
-    await elevenlabsClient.conversationalAI.agents.delete(agentId)
+    await elevenlabsClient.conversationalAi.agents.delete(agentId)
 
     return NextResponse.json({ success: true })
   } catch (error: any) {

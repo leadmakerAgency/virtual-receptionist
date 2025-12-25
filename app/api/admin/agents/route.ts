@@ -13,7 +13,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const agents = await elevenlabsClient.conversationalAI.agents.list()
+    const agents = await elevenlabsClient.conversationalAi.agents.list()
     
     return NextResponse.json({ agents })
   } catch (error: any) {
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
 
     const body: CreateAgentRequest = await request.json()
 
-    const agent = await elevenlabsClient.conversationalAI.agents.create(body)
+    const agent = await elevenlabsClient.conversationalAi.agents.create(body)
 
     return NextResponse.json({ agent }, { status: 201 })
   } catch (error: any) {

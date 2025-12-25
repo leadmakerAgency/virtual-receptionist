@@ -98,7 +98,7 @@ export async function PATCH(
         },
       }
 
-      await elevenlabsClient.conversationalAI.agents.update(existing.agent_id, {
+      await elevenlabsClient.conversationalAi.agents.update(existing.agent_id, {
         name: body.name || existing.name,
         conversation_config: agentConfig,
       })
@@ -162,7 +162,7 @@ export async function DELETE(
     // Delete agent from ElevenLabs
     if (existing.agent_id) {
       try {
-        await elevenlabsClient.conversationalAI.agents.delete(existing.agent_id)
+        await elevenlabsClient.conversationalAi.agents.delete(existing.agent_id)
       } catch (deleteError) {
         console.error('Failed to delete agent from ElevenLabs:', deleteError)
         // Continue with database deletion even if ElevenLabs deletion fails
