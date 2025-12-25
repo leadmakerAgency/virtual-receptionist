@@ -3,6 +3,9 @@ import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { elevenlabsClient } from '@/lib/elevenlabs/client'
 import { ReceptionistFormData } from '@/types/receptionist'
 import { AgentConfig } from '@/lib/elevenlabs/types'
+import { Database } from '@/types/database'
+
+type VirtualReceptionist = Database['public']['Tables']['virtual_receptionists']['Row']
 
 // GET /api/admin/receptionists - List all receptionists
 export async function GET(request: NextRequest) {
@@ -78,7 +81,7 @@ export async function POST(request: NextRequest) {
     const adminClient = createAdminClient()
 
     // Save to Supabase
-    const { data: receptionist, error } = await adminClient
+    const { data: receptionistData, error } = await adminClient
       .from('virtual_receptionists')
       .insert({
         slug: body.slug,
@@ -103,12 +106,15 @@ export async function POST(request: NextRequest) {
       throw error
     }
 
-    if (!receptionist) {
+    if (!receptionistData) {
       return NextResponse.json(
         { error: 'Failed to create receptionist' },
         { status: 500 }
       )
     }
+
+    // Explicitly type the created receptionist
+    const receptionist: VirtualReceptionist = receptionistData
 
     return NextResponse.json({ receptionist }, { status: 201 })
   } catch (error: any) {

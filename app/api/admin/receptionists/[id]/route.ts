@@ -3,6 +3,9 @@ import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { elevenlabsClient } from '@/lib/elevenlabs/client'
 import { ReceptionistFormData } from '@/types/receptionist'
 import { AgentConfig } from '@/lib/elevenlabs/types'
+import { Database } from '@/types/database'
+
+type VirtualReceptionist = Database['public']['Tables']['virtual_receptionists']['Row']
 
 // GET /api/admin/receptionists/[id] - Get a specific receptionist
 export async function GET(
@@ -23,21 +26,24 @@ export async function GET(
     const { createAdminClient } = await import('@/lib/supabase/admin')
     const adminClient = createAdminClient()
 
-    const { data, error } = await adminClient
+    const { data: receptionistData, error } = await adminClient
       .from('virtual_receptionists')
       .select('*')
       .eq('id', id)
       .single()
 
     if (error) throw error
-    if (!data) {
+    if (!receptionistData) {
       return NextResponse.json(
         { error: 'Receptionist not found' },
         { status: 404 }
       )
     }
 
-    return NextResponse.json({ receptionist: data })
+    // Explicitly type the receptionist
+    const receptionist: VirtualReceptionist = receptionistData
+
+    return NextResponse.json({ receptionist })
   } catch (error: any) {
     console.error('Error getting receptionist:', error)
     return NextResponse.json(
@@ -68,19 +74,22 @@ export async function PATCH(
     const adminClient = createAdminClient()
 
     // Get existing receptionist
-    const { data: existing, error: fetchError } = await adminClient
+    const { data: existingData, error: fetchError } = await adminClient
       .from('virtual_receptionists')
       .select('*')
       .eq('id', id)
       .single()
 
     if (fetchError) throw fetchError
-    if (!existing) {
+    if (!existingData) {
       return NextResponse.json(
         { error: 'Receptionist not found' },
         { status: 404 }
       )
     }
+
+    // Explicitly type the existing receptionist
+    const existing: VirtualReceptionist = existingData
 
     if (!existing.agent_id) {
       return NextResponse.json(
@@ -125,7 +134,7 @@ export async function PATCH(
     if (body.first_message) updateData.first_message = body.first_message
     if (body.voice_id) updateData.voice_id = body.voice_id
 
-    const { data: receptionist, error } = await adminClient
+    const { data: updatedData, error } = await adminClient
       .from('virtual_receptionists')
       .update(updateData)
       .eq('id', id)
@@ -133,12 +142,15 @@ export async function PATCH(
       .single()
 
     if (error) throw error
-    if (!receptionist) {
+    if (!updatedData) {
       return NextResponse.json(
         { error: 'Receptionist not found' },
         { status: 404 }
       )
     }
+
+    // Explicitly type the updated receptionist
+    const receptionist: VirtualReceptionist = updatedData
 
     return NextResponse.json({ receptionist })
   } catch (error: any) {
@@ -170,19 +182,22 @@ export async function DELETE(
     const adminClient = createAdminClient()
 
     // Get existing receptionist
-    const { data: existing, error: fetchError } = await adminClient
+    const { data: existingData, error: fetchError } = await adminClient
       .from('virtual_receptionists')
       .select('*')
       .eq('id', id)
       .single()
 
     if (fetchError) throw fetchError
-    if (!existing) {
+    if (!existingData) {
       return NextResponse.json(
         { error: 'Receptionist not found' },
         { status: 404 }
       )
     }
+
+    // Explicitly type the existing receptionist
+    const existing: VirtualReceptionist = existingData
 
     // Delete agent from ElevenLabs
     if (existing.agent_id) {
