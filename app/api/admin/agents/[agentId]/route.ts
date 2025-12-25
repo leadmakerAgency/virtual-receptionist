@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { elevenlabsClient } from '@/lib/elevenlabs/client'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { UpdateAgentRequest, AgentConfig } from '@/lib/elevenlabs/types'
 
 // GET /api/admin/agents/[agentId] - Get a specific agent
 export async function GET(
@@ -45,14 +44,25 @@ export async function PATCH(
     const { agentId } = await params
     const body: any = await request.json()
 
-    // Convert to ElevenLabs SDK format if needed
-    const updateBody: UpdateAgentRequest = {}
-    if (body.name) updateBody.name = body.name
+    // Build update body matching SDK's UpdateAgentRequest type
+    // Use 'as any' to avoid type conflicts with SDK's internal types
+    const updateBody: any = {}
+    if (body.name) {
+      updateBody.name = body.name
+    }
     if (body.conversation_config || body.conversationConfig) {
-      updateBody.conversationConfig = (body.conversationConfig || body.conversation_config) as Partial<AgentConfig>
+      const config = body.conversationConfig || body.conversation_config
+      // Ensure quality is 'high' if asr is provided (SDK requirement)
+      if (config.asr) {
+        config.asr = {
+          ...config.asr,
+          quality: 'high' as const,
+        }
+      }
+      updateBody.conversationConfig = config
     }
 
-    const agent = await elevenlabsClient.conversationalAi.agents.update(agentId, updateBody)
+    const agent = await elevenlabsClient.conversationalAi.agents.update(agentId, updateBody as any)
 
     return NextResponse.json({ agent })
   } catch (error: any) {

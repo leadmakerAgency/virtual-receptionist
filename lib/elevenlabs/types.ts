@@ -8,7 +8,7 @@ export interface AgentConfig {
     first_message: string
   }
   asr: {
-    quality: 'high' | 'medium' | 'low'
+    quality: 'high'  // SDK only accepts 'high' or undefined
     provider: 'elevenlabs' | 'deepgram'
   }
   tts: {
