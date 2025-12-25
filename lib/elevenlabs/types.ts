@@ -1,3 +1,4 @@
+// Internal type for our use - matches SDK structure but more flexible
 export interface AgentConfig {
   agent: {
     language: string
@@ -9,7 +10,7 @@ export interface AgentConfig {
   }
   asr: {
     quality: 'high'  // SDK only accepts 'high' or undefined
-    provider: 'elevenlabs' | 'deepgram'
+    provider: 'elevenlabs'  // SDK only accepts 'elevenlabs' (not 'deepgram')
   }
   tts: {
     model_id: string

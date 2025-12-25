@@ -67,10 +67,11 @@ export async function POST(request: NextRequest) {
       },
     }
 
+    // Use type assertion to avoid TypeScript type conflicts with SDK internal types
     const agent = await elevenlabsClient.conversationalAi.agents.create({
       name: body.name,
       conversationConfig: agentConfig,
-    })
+    } as any)
 
     // Use admin client to bypass RLS for admin operations
     const { createAdminClient } = await import('@/lib/supabase/admin')

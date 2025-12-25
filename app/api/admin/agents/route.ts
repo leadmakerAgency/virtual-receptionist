@@ -38,10 +38,11 @@ export async function POST(request: NextRequest) {
     const body: CreateAgentRequest = await request.json()
 
     // Convert to ElevenLabs SDK format (camelCase)
+    // Use type assertion to avoid TypeScript type conflicts with SDK internal types
     const elevenLabsBody = {
       name: body.name,
       conversationConfig: body.conversation_config,
-    }
+    } as any
 
     const agent = await elevenlabsClient.conversationalAi.agents.create(elevenLabsBody)
 

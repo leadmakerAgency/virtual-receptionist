@@ -98,10 +98,11 @@ export async function PATCH(
         },
       }
 
+      // Use type assertion to avoid TypeScript type conflicts with SDK internal types
       await elevenlabsClient.conversationalAi.agents.update(existing.agent_id, {
         name: body.name || existing.name,
         conversationConfig: agentConfig,
-      })
+      } as any)
     }
 
     // Update in Supabase
