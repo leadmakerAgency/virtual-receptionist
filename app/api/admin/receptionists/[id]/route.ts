@@ -30,6 +30,12 @@ export async function GET(
       .single()
 
     if (error) throw error
+    if (!data) {
+      return NextResponse.json(
+        { error: 'Receptionist not found' },
+        { status: 404 }
+      )
+    }
 
     return NextResponse.json({ receptionist: data })
   } catch (error: any) {
@@ -69,6 +75,12 @@ export async function PATCH(
       .single()
 
     if (fetchError) throw fetchError
+    if (!existing) {
+      return NextResponse.json(
+        { error: 'Receptionist not found' },
+        { status: 404 }
+      )
+    }
 
     if (!existing.agent_id) {
       return NextResponse.json(
@@ -121,6 +133,12 @@ export async function PATCH(
       .single()
 
     if (error) throw error
+    if (!receptionist) {
+      return NextResponse.json(
+        { error: 'Receptionist not found' },
+        { status: 404 }
+      )
+    }
 
     return NextResponse.json({ receptionist })
   } catch (error: any) {
@@ -159,6 +177,12 @@ export async function DELETE(
       .single()
 
     if (fetchError) throw fetchError
+    if (!existing) {
+      return NextResponse.json(
+        { error: 'Receptionist not found' },
+        { status: 404 }
+      )
+    }
 
     // Delete agent from ElevenLabs
     if (existing.agent_id) {

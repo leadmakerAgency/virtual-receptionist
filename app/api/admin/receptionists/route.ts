@@ -103,6 +103,13 @@ export async function POST(request: NextRequest) {
       throw error
     }
 
+    if (!receptionist) {
+      return NextResponse.json(
+        { error: 'Failed to create receptionist' },
+        { status: 500 }
+      )
+    }
+
     return NextResponse.json({ receptionist }, { status: 201 })
   } catch (error: any) {
     console.error('Error creating receptionist:', error)
