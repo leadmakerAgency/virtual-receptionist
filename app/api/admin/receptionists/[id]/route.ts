@@ -100,7 +100,7 @@ export async function PATCH(
 
       await elevenlabsClient.conversationalAi.agents.update(existing.agent_id, {
         name: body.name || existing.name,
-        conversation_config: agentConfig,
+        conversationConfig: agentConfig,
       })
     }
 

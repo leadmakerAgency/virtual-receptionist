@@ -17,14 +17,21 @@ export interface AgentConfig {
   }
 }
 
+// Internal type for our use (snake_case for database)
 export interface CreateAgentRequest {
   name: string
   conversation_config: AgentConfig
 }
 
+// Type matching ElevenLabs SDK (camelCase)
+export interface ElevenLabsCreateAgentRequest {
+  name: string
+  conversationConfig: AgentConfig
+}
+
 export interface UpdateAgentRequest {
   name?: string
-  conversation_config?: Partial<AgentConfig>
+  conversationConfig?: Partial<AgentConfig>
 }
 
 export interface Agent {

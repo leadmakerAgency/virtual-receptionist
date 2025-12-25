@@ -37,7 +37,13 @@ export async function POST(request: NextRequest) {
 
     const body: CreateAgentRequest = await request.json()
 
-    const agent = await elevenlabsClient.conversationalAi.agents.create(body)
+    // Convert to ElevenLabs SDK format (camelCase)
+    const elevenLabsBody = {
+      name: body.name,
+      conversationConfig: body.conversation_config,
+    }
+
+    const agent = await elevenlabsClient.conversationalAi.agents.create(elevenLabsBody)
 
     return NextResponse.json({ agent }, { status: 201 })
   } catch (error: any) {

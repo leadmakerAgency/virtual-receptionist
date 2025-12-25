@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
 
     const agent = await elevenlabsClient.conversationalAi.agents.create({
       name: body.name,
-      conversation_config: agentConfig,
+      conversationConfig: agentConfig,
     })
 
     // Use admin client to bypass RLS for admin operations
