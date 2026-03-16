@@ -9,7 +9,7 @@ interface AudioVisualizerProps {
 
 export const AudioVisualizer = ({ isActive, isListening = false }: AudioVisualizerProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const animationRef = useRef<number>()
+  const animationRef = useRef<number | null>(null)
   const barsRef = useRef([0.3, 0.5, 0.7, 0.4])
 
   useEffect(() => {
@@ -66,7 +66,7 @@ export const AudioVisualizer = ({ isActive, isListening = false }: AudioVisualiz
     animate()
 
     return () => {
-      if (animationRef.current) {
+      if (animationRef.current !== null) {
         cancelAnimationFrame(animationRef.current)
       }
     }

@@ -52,6 +52,7 @@ export interface Database {
           updated_at?: string
           created_by?: string | null
         }
+        Relationships: []
       }
     }
     Views: {

@@ -32,6 +32,7 @@ export const useConversation = (agentId: string | null) => {
     setConnectionState('connecting')
     try {
       await conversation.startSession({
+        agentId,
         connectionType: 'webrtc',
       })
     } catch (error) {

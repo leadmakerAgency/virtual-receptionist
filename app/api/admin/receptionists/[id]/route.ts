@@ -6,6 +6,8 @@ import { AgentConfig } from '@/lib/elevenlabs/types'
 import { Database } from '@/types/database'
 
 type VirtualReceptionist = Database['public']['Tables']['virtual_receptionists']['Row']
+type VirtualReceptionistUpdate =
+  Database['public']['Tables']['virtual_receptionists']['Update']
 
 // GET /api/admin/receptionists/[id] - Get a specific receptionist
 export async function GET(
@@ -127,7 +129,7 @@ export async function PATCH(
     }
 
     // Update in Supabase
-    const updateData: any = {}
+    const updateData: VirtualReceptionistUpdate = {}
     if (body.slug) updateData.slug = body.slug
     if (body.name) updateData.name = body.name
     if (body.prompt) updateData.prompt = body.prompt
