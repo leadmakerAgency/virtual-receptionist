@@ -9,7 +9,7 @@ import { useConversation } from '@/hooks/useConversation'
 
 interface ConversationStageProps {
   agentId: string
-  onEnd: () => void
+  onEnd: (durationSeconds: number) => void
 }
 
 export const ConversationStage = ({ agentId, onEnd }: ConversationStageProps) => {
@@ -55,7 +55,7 @@ export const ConversationStage = ({ agentId, onEnd }: ConversationStageProps) =>
 
   const handleEndCall = async () => {
     await conversation.endSession()
-    onEnd()
+    onEnd(elapsedTime)
   }
 
   const isListening = conversation.connectionState === 'connected'
@@ -67,7 +67,7 @@ export const ConversationStage = ({ agentId, onEnd }: ConversationStageProps) =>
         <div className="mb-8 flex items-center justify-between">
           <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
             <span className="mr-2 h-2 w-2 rounded-full bg-green-500"></span>
-            Live Interview
+            Live Practice
           </Badge>
           <Badge variant="outline" className="gap-2">
             <Clock className="h-4 w-4" />

@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Virtual Receptionist Platform",
-  description: "AI-powered virtual receptionists powered by ElevenLabs",
+  title: "Cold Call Coach",
+  description: "Practice your cold calling script against an AI prospect powered by ElevenLabs.",
 };
 
 export default function RootLayout({
