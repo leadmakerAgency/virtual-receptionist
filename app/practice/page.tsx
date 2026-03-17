@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { ReadyStage } from '@/components/receptionist/ReadyStage'
@@ -8,7 +9,7 @@ import { MicrophoneAccessStage } from '@/components/receptionist/MicrophoneAcces
 import { AudioConfigStage } from '@/components/receptionist/AudioConfigStage'
 import { ConversationStage } from '@/components/receptionist/ConversationStage'
 import { Button } from '@/components/ui/button'
-import { LogOut, PhoneCall } from 'lucide-react'
+import { LogOut } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 
 type Stage = 'ready' | 'mic-permission' | 'audio-config' | 'conversation' | 'complete'
@@ -187,8 +188,14 @@ export default function PracticePage() {
         {/* Header */}
         <header className="absolute left-0 right-0 top-0 flex items-center justify-between border-b border-gray-200 bg-white px-6 py-3">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600">
-              <PhoneCall className="h-4 w-4 text-white" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50">
+              <Image
+                src="https://cdn.prod.website-files.com/635b136ad9dc07c8ea095fdb/6734c390a167ec14434b314a_LeadMaker%20Vector%20Logo-01%20-%20Copy-p-500.png"
+                alt="LeadMaker logo"
+                width={24}
+                height={24}
+                className="h-6 w-6 object-contain"
+              />
             </div>
             <span className="font-semibold text-gray-900">Cold Call Coach</span>
           </div>
@@ -249,8 +256,14 @@ export default function PracticePage() {
       {(stage === 'ready' || stage === 'audio-config') && (
         <header className="fixed left-0 right-0 top-0 z-10 flex items-center justify-between border-b border-gray-200 bg-white px-6 py-3">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600">
-              <PhoneCall className="h-4 w-4 text-white" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50">
+              <Image
+                src="https://cdn.prod.website-files.com/635b136ad9dc07c8ea095fdb/6734c390a167ec14434b314a_LeadMaker%20Vector%20Logo-01%20-%20Copy-p-500.png"
+                alt="LeadMaker logo"
+                width={24}
+                height={24}
+                className="h-6 w-6 object-contain"
+              />
             </div>
             <span className="font-semibold text-gray-900">Cold Call Coach</span>
           </div>

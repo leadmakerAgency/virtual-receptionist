@@ -1,20 +1,13 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { UserTable, UserWithStats } from '@/components/admin/UserTable'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import {
-  PhoneCall,
-  LogOut,
-  Settings,
-  RefreshCw,
-  Users,
-  Clock,
-  TrendingUp,
-} from 'lucide-react'
+import { LogOut, Settings, RefreshCw, Users, Clock, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
 
 interface Stats {
@@ -118,8 +111,14 @@ export default function AdminPage() {
       <header className="sticky top-0 z-10 border-b border-gray-200 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600">
-              <PhoneCall className="h-4 w-4 text-white" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50">
+              <Image
+                src="https://cdn.prod.website-files.com/635b136ad9dc07c8ea095fdb/6734c390a167ec14434b314a_LeadMaker%20Vector%20Logo-01%20-%20Copy-p-500.png"
+                alt="LeadMaker logo"
+                width={24}
+                height={24}
+                className="h-6 w-6 object-contain"
+              />
             </div>
             <div>
               <span className="font-semibold text-gray-900">Cold Call Coach</span>

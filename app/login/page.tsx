@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
@@ -8,7 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Loader2, PhoneCall, CheckCircle } from 'lucide-react'
+import { Loader2, CheckCircle } from 'lucide-react'
 
 type Mode = 'signin' | 'signup'
 
@@ -147,8 +148,15 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         {/* Logo / Brand */}
         <div className="mb-8 text-center">
-          <div className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-600">
-            <PhoneCall className="h-7 w-7 text-white" />
+          <div className="mb-4 inline-flex items-center justify-center">
+            <Image
+              src="https://cdn.prod.website-files.com/635b136ad9dc07c8ea095fdb/6734c390a167ec14434b314a_LeadMaker%20Vector%20Logo-01%20-%20Copy-p-500.png"
+              alt="LeadMaker logo"
+              width={56}
+              height={56}
+              className="h-14 w-14 rounded-2xl bg-white object-contain"
+              priority
+            />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Cold Call Coach</h1>
           <p className="mt-1 text-sm text-gray-500">
