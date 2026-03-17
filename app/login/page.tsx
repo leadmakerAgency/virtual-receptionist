@@ -54,15 +54,7 @@ export default function LoginPage() {
       return
     }
 
-    // Fetch role to determine redirect
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', data.user.id)
-      .single()
-
-    const role = profile?.role ?? 'user'
-    router.push(role === 'admin' ? '/admin' : '/practice')
+    router.push('/practice')
     router.refresh()
   }
 
@@ -296,7 +288,7 @@ export default function LoginPage() {
         <p className="mt-6 text-center text-xs text-gray-400">
           {mode === 'signin'
             ? "Don't have an account? Switch to Create account above."
-            : 'New accounts are created as sales reps. Contact your admin for admin access.'}
+            : 'Practice cold calling with an AI prospect after signing up.'}
         </p>
       </div>
     </div>

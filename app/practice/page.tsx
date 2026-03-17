@@ -9,7 +9,7 @@ import { MicrophoneAccessStage } from '@/components/receptionist/MicrophoneAcces
 import { AudioConfigStage } from '@/components/receptionist/AudioConfigStage'
 import { ConversationStage } from '@/components/receptionist/ConversationStage'
 import { Button } from '@/components/ui/button'
-import { LogOut } from 'lucide-react'
+import { LogOut, PhoneCall } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 
 type Stage = 'ready' | 'mic-permission' | 'audio-config' | 'conversation' | 'complete'
