@@ -14,7 +14,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Cold Call Coach",
-  description: "Practice your cold calling script against an AI prospect powered by ElevenLabs.",
+  description:
+    "Practice your cold calling script against an AI prospect powered by ElevenLabs.",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({

@@ -146,7 +146,7 @@ export default function LoginPage() {
               alt="LeadMaker logo"
               width={180}
               height={180}
-              className="h-28 w-auto object-contain"
+              className="h-24 w-auto object-contain"
               priority
             />
           </div>
