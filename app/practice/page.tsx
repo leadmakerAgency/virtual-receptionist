@@ -187,16 +187,14 @@ export default function PracticePage() {
       <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 p-4">
         {/* Header */}
         <header className="absolute left-0 right-0 top-0 flex items-center justify-between border-b border-gray-200 bg-white px-6 py-3">
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50">
-              <Image
-                src="https://cdn.prod.website-files.com/635b136ad9dc07c8ea095fdb/6734c390a167ec14434b314a_LeadMaker%20Vector%20Logo-01%20-%20Copy-p-500.png"
-                alt="LeadMaker logo"
-                width={24}
-                height={24}
-                className="h-6 w-6 object-contain"
-              />
-            </div>
+          <div className="flex items-center gap-3">
+            <Image
+              src="https://cdn.prod.website-files.com/635b136ad9dc07c8ea095fdb/6734c390a167ec14434b314a_LeadMaker%20Vector%20Logo-01%20-%20Copy-p-500.png"
+              alt="LeadMaker logo"
+              width={120}
+              height={120}
+              className="h-10 w-auto object-contain"
+            />
             <span className="font-semibold text-gray-900">Cold Call Coach</span>
           </div>
           <div className="flex items-center gap-3">
@@ -255,16 +253,14 @@ export default function PracticePage() {
       {/* Persistent header on ready/config stages */}
       {(stage === 'ready' || stage === 'audio-config') && (
         <header className="fixed left-0 right-0 top-0 z-10 flex items-center justify-between border-b border-gray-200 bg-white px-6 py-3">
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50">
-              <Image
-                src="https://cdn.prod.website-files.com/635b136ad9dc07c8ea095fdb/6734c390a167ec14434b314a_LeadMaker%20Vector%20Logo-01%20-%20Copy-p-500.png"
-                alt="LeadMaker logo"
-                width={24}
-                height={24}
-                className="h-6 w-6 object-contain"
-              />
-            </div>
+          <div className="flex items-center gap-3">
+            <Image
+              src="https://cdn.prod.website-files.com/635b136ad9dc07c8ea095fdb/6734c390a167ec14434b314a_LeadMaker%20Vector%20Logo-01%20-%20Copy-p-500.png"
+              alt="LeadMaker logo"
+              width={120}
+              height={120}
+              className="h-10 w-auto object-contain"
+            />
             <span className="font-semibold text-gray-900">Cold Call Coach</span>
           </div>
           <div className="flex items-center gap-3">

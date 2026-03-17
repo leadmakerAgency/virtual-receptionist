@@ -144,9 +144,9 @@ export default function LoginPage() {
             <Image
               src="https://cdn.prod.website-files.com/635b136ad9dc07c8ea095fdb/6734c390a167ec14434b314a_LeadMaker%20Vector%20Logo-01%20-%20Copy-p-500.png"
               alt="LeadMaker logo"
-              width={56}
-              height={56}
-              className="h-14 w-14 rounded-2xl bg-white object-contain"
+              width={180}
+              height={180}
+              className="h-28 w-auto object-contain"
               priority
             />
           </div>
