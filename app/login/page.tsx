@@ -16,6 +16,9 @@ type Mode = 'signin' | 'signup'
 export default function LoginPage() {
   const router = useRouter()
   const supabase = createClient()
+  const appUrl =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    (typeof window !== 'undefined' ? window.location.origin : '')
 
   const [mode, setMode] = useState<Mode>('signin')
   const [email, setEmail] = useState('')
@@ -73,6 +76,7 @@ export default function LoginPage() {
       password,
       options: {
         data: { full_name: fullName.trim() },
+        emailRedirectTo: `${appUrl}/auth/confirm`,
       },
     })
 

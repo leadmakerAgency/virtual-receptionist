@@ -9,6 +9,8 @@ NEXT_PUBLIC_SUPABASE_URL=https://bcvcfqyymwypwclsdeog.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjdmNmcXl5bXd5cHdjbHNkZW9nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY1NzgwMjYsImV4cCI6MjA4MjE1NDAyNn0.bs12rMG_YZ4u_wrKCpqoCbsYr6uhIv4QGHhfVtbtQOE
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
 ELEVENLABS_API_KEY=your_elevenlabs_api_key_here
+# Dev: http://localhost:3000
+# Prod (your deployment): https://coach.leadmaker.agency
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
