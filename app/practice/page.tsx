@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -11,11 +11,34 @@ import { ConversationStage } from '@/components/receptionist/ConversationStage'
 import { Button } from '@/components/ui/button'
 import { LogOut, PhoneCall } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import type {
+  ConversationDynamicVariables,
+  ScenarioCategory,
+  ScenarioItem,
+  ScenarioLevel,
+  ScenariosResponse,
+  SessionScenarioSnapshot,
+} from '@/types/scenario'
 
 type Stage = 'ready' | 'mic-permission' | 'audio-config' | 'conversation' | 'complete'
 
 interface SessionSummary {
   durationSeconds: number
+}
+
+const DEFAULT_LEVEL: ScenarioLevel = 'beginner'
+
+const getFallbackScenario = (
+  category: ScenarioCategory | undefined,
+  preferredLevel: ScenarioLevel
+): ScenarioItem | null => {
+  if (!category) return null
+  const levelOrder: ScenarioLevel[] = [preferredLevel, 'beginner', 'intermediate', 'advanced']
+  for (const level of levelOrder) {
+    const candidate = category.levels[level]?.[0]
+    if (candidate) return candidate
+  }
+  return null
 }
 
 export default function PracticePage() {
@@ -29,6 +52,15 @@ export default function PracticePage() {
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null)
   const [sessionSummary, setSessionSummary] = useState<SessionSummary | null>(null)
   const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [scenariosLoading, setScenariosLoading] = useState(true)
+  const [scenariosError, setScenariosError] = useState<string | null>(null)
+  const [scenarioCategories, setScenarioCategories] = useState<ScenarioCategory[]>([])
+  const [selectedCategoryKey, setSelectedCategoryKey] = useState('')
+  const [selectedLevel, setSelectedLevel] = useState<ScenarioLevel>(DEFAULT_LEVEL)
+  const [selectedScenarioId, setSelectedScenarioId] = useState('')
+  const [prospectName, setProspectName] = useState('')
+  const [prospectCompanyName, setProspectCompanyName] = useState('')
+  const [readyError, setReadyError] = useState<string | null>(null)
 
   useEffect(() => {
     const init = async () => {
@@ -39,6 +71,75 @@ export default function PracticePage() {
     }
     init()
   }, [supabase])
+
+  // Fetch active scenarios
+  useEffect(() => {
+    const fetchScenarios = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        const response = await fetch('/api/scenarios', {
+          headers: {
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+        })
+        if (!response.ok) {
+          const err = await response.json()
+          throw new Error(err.error ?? 'Failed to load scenarios')
+        }
+
+        const data = (await response.json()) as ScenariosResponse
+        setScenarioCategories(data.categories)
+
+        const firstCategory = data.categories[0]
+        if (firstCategory) {
+          const scenario = getFallbackScenario(firstCategory, DEFAULT_LEVEL)
+          setSelectedCategoryKey(firstCategory.key)
+          setSelectedLevel(scenario?.level ?? DEFAULT_LEVEL)
+          setSelectedScenarioId(scenario?.id ?? '')
+        }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Failed to load scenarios'
+        setScenariosError(msg)
+      } finally {
+        setScenariosLoading(false)
+      }
+    }
+
+    fetchScenarios()
+  }, [supabase])
+
+  const selectedCategory =
+    scenarioCategories.find((category) => category.key === selectedCategoryKey) ?? null
+  const selectedScenario =
+    selectedCategory?.levels[selectedLevel]?.find((scenario) => scenario.id === selectedScenarioId) ?? null
+
+  const dynamicVariables: ConversationDynamicVariables | null = selectedScenario
+    ? {
+        prospect_name: prospectName.trim(),
+        company_name: prospectCompanyName.trim(),
+        scenario_name: selectedScenario.name,
+        scenario_category: selectedCategory?.label ?? '',
+        scenario_level: selectedScenario.level,
+        scenario_brief: selectedScenario.brief,
+        scenario_behavior_instructions: selectedScenario.behaviorInstructions,
+      }
+    : null
+
+  const scenarioSnapshot: SessionScenarioSnapshot | null = useMemo(
+    () =>
+      selectedScenario && selectedCategory
+        ? {
+            scenarioId: selectedScenario.id,
+            scenarioSlug: selectedScenario.slug,
+            scenarioName: selectedScenario.name,
+            scenarioLevel: selectedScenario.level,
+            scenarioCategoryKey: selectedCategory.key,
+            scenarioCategoryLabel: selectedCategory.label,
+            scenarioBrief: selectedScenario.brief,
+          }
+        : null,
+    [selectedScenario, selectedCategory]
+  )
 
   // Fetch the active coaching agent from Supabase
   useEffect(() => {
@@ -68,8 +169,39 @@ export default function PracticePage() {
   }, [supabase])
 
   const handleStart = () => {
+    if (!prospectName.trim() || !prospectCompanyName.trim()) {
+      setReadyError('Prospect name and company are required before starting.')
+      return
+    }
+    if (!selectedScenario) {
+      setReadyError('Please choose a valid scenario before starting.')
+      return
+    }
+    setReadyError(null)
     setStage('mic-permission')
   }
+
+  const handleCategoryChange = useCallback(
+    (categoryKey: string) => {
+      setSelectedCategoryKey(categoryKey)
+      const category = scenarioCategories.find((item) => item.key === categoryKey)
+      const nextScenario = getFallbackScenario(category, selectedLevel)
+      setSelectedLevel(nextScenario?.level ?? selectedLevel)
+      setSelectedScenarioId(nextScenario?.id ?? '')
+      setReadyError(null)
+    },
+    [scenarioCategories, selectedLevel]
+  )
+
+  const handleLevelChange = useCallback(
+    (level: ScenarioLevel) => {
+      setSelectedLevel(level)
+      const fallbackScenario = getFallbackScenario(selectedCategory ?? undefined, level)
+      setSelectedScenarioId(fallbackScenario?.id ?? '')
+      setReadyError(null)
+    },
+    [selectedCategory]
+  )
 
   const handleMicPermissionGranted = useCallback(() => {
     setStage('audio-config')
@@ -82,7 +214,7 @@ export default function PracticePage() {
     )
   }, [])
 
-  const handleAudioConfigured = useCallback(async (_micDeviceId: string, _speakerDeviceId: string) => {
+  const handleAudioConfigured = useCallback(async () => {
     // Create the session row before starting the conversation
     try {
       const { data: { session } } = await supabase.auth.getSession()
@@ -92,7 +224,12 @@ export default function PracticePage() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session?.access_token}`,
         },
-        body: JSON.stringify({}),
+        body: JSON.stringify({
+          scenario_id: selectedScenario?.id ?? null,
+          prospect_name: prospectName.trim(),
+          prospect_company_name: prospectCompanyName.trim(),
+          scenario_snapshot: scenarioSnapshot,
+        }),
       })
       if (response.ok) {
         const { session: coachingSession } = await response.json()
@@ -103,10 +240,10 @@ export default function PracticePage() {
       // Non-fatal — still proceed to conversation
     }
     setStage('conversation')
-  }, [supabase])
+  }, [supabase, selectedScenario, prospectName, prospectCompanyName, scenarioSnapshot])
 
   const handleConversationEnd = useCallback(
-    async (durationSeconds: number) => {
+    async (durationSeconds: number, conversationId: string | null) => {
       setSessionSummary({ durationSeconds })
 
       if (currentSessionId) {
@@ -121,6 +258,7 @@ export default function PracticePage() {
             body: JSON.stringify({
               ended_at: new Date().toISOString(),
               duration_seconds: durationSeconds,
+              conversation_id: conversationId,
             }),
           })
         } catch (err) {
@@ -281,7 +419,34 @@ export default function PracticePage() {
       )}
 
       <main className={stage === 'ready' || stage === 'audio-config' ? 'pt-14' : ''}>
-        {stage === 'ready' && <ReadyStage onStart={handleStart} />}
+        {stage === 'ready' && (
+          <ReadyStage
+            onStart={handleStart}
+            prospectName={prospectName}
+            prospectCompanyName={prospectCompanyName}
+            onProspectNameChange={(value) => {
+              setProspectName(value)
+              setReadyError(null)
+            }}
+            onProspectCompanyNameChange={(value) => {
+              setProspectCompanyName(value)
+              setReadyError(null)
+            }}
+            categories={scenarioCategories}
+            selectedCategoryKey={selectedCategoryKey}
+            selectedLevel={selectedLevel}
+            selectedScenarioId={selectedScenarioId}
+            onCategoryChange={handleCategoryChange}
+            onLevelChange={handleLevelChange}
+            onScenarioChange={(scenarioId) => {
+              setSelectedScenarioId(scenarioId)
+              setReadyError(null)
+            }}
+            scenariosLoading={scenariosLoading}
+            scenariosError={scenariosError}
+            formError={readyError}
+          />
+        )}
 
         {stage === 'mic-permission' && (
           <MicrophoneAccessStage
@@ -298,6 +463,22 @@ export default function PracticePage() {
           <ConversationStage
             agentId={agentId}
             onEnd={handleConversationEnd}
+            prospectName={prospectName.trim() || 'AI Prospect'}
+            prospectCompanyName={prospectCompanyName.trim() || 'Company'}
+            scenarioName={selectedScenario?.name ?? 'Cold Call Practice Session'}
+            dynamicVariables={
+              dynamicVariables ?? {
+                prospect_name: prospectName.trim() || 'Prospect',
+                company_name: prospectCompanyName.trim() || 'Company',
+                scenario_name: selectedScenario?.name ?? 'General Scenario',
+                scenario_category: selectedCategory?.label ?? 'General',
+                scenario_level: selectedLevel,
+                scenario_brief: selectedScenario?.brief ?? 'General cold call practice scenario.',
+                scenario_behavior_instructions:
+                  selectedScenario?.behaviorInstructions ??
+                  'Stay realistic, professional, and roleplay a prospect suitable for this scenario.',
+              }
+            }
           />
         )}
       </main>

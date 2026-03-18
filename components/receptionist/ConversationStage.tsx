@@ -4,10 +4,15 @@ import { useState, useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Mic, MicOff, PhoneOff, Clock, Phone } from 'lucide-react'
 import { useConversation } from '@/hooks/useConversation'
+import type { ConversationDynamicVariables } from '@/types/scenario'
 
 interface ConversationStageProps {
   agentId: string
-  onEnd: (durationSeconds: number) => void
+  onEnd: (durationSeconds: number, conversationId: string | null) => void
+  prospectName: string
+  prospectCompanyName: string
+  scenarioName: string
+  dynamicVariables: ConversationDynamicVariables
 }
 
 const PulseRings = ({ active }: { active: boolean }) => (
@@ -33,14 +38,12 @@ const PulseRings = ({ active }: { active: boolean }) => (
 
 const VoiceWaveform = ({ active }: { active: boolean }) => {
   const bars = 24
+  const idleHeights = Array(bars).fill(0.15)
   const [heights, setHeights] = useState<number[]>(Array(bars).fill(0.15))
   const frameRef = useRef<number | null>(null)
 
   useEffect(() => {
-    if (!active) {
-      setHeights(Array(bars).fill(0.15))
-      return
-    }
+    if (!active) return
 
     const animate = () => {
       setHeights((prev) =>
@@ -58,9 +61,11 @@ const VoiceWaveform = ({ active }: { active: boolean }) => {
     }
   }, [active])
 
+  const displayHeights = active ? heights : idleHeights
+
   return (
     <div className="flex h-10 items-end justify-center gap-[3px]">
-      {heights.map((h, i) => (
+      {displayHeights.map((h, i) => (
         <div
           key={i}
           className="w-[3px] rounded-full transition-all duration-100"
@@ -76,15 +81,23 @@ const VoiceWaveform = ({ active }: { active: boolean }) => {
   )
 }
 
-export const ConversationStage = ({ agentId, onEnd }: ConversationStageProps) => {
+export const ConversationStage = ({
+  agentId,
+  onEnd,
+  prospectName,
+  prospectCompanyName,
+  scenarioName,
+  dynamicVariables,
+}: ConversationStageProps) => {
   const [startTime, setStartTime] = useState<Date | null>(null)
   const [elapsedTime, setElapsedTime] = useState(0)
-  const conversation = useConversation(agentId)
+  const conversation = useConversation(agentId, dynamicVariables)
+  const { startSession, endSession, getId } = conversation
 
   useEffect(() => {
     const start = async () => {
       try {
-        await conversation.startSession()
+        await startSession()
         setStartTime(new Date())
       } catch (error) {
         console.error('Failed to start conversation:', error)
@@ -96,9 +109,9 @@ export const ConversationStage = ({ agentId, onEnd }: ConversationStageProps) =>
     }
 
     return () => {
-      conversation.endSession()
+      endSession()
     }
-  }, [agentId])
+  }, [agentId, startSession, endSession])
 
   useEffect(() => {
     if (!startTime) return
@@ -118,8 +131,8 @@ export const ConversationStage = ({ agentId, onEnd }: ConversationStageProps) =>
   }
 
   const handleEndCall = async () => {
-    await conversation.endSession()
-    onEnd(elapsedTime)
+    await endSession()
+    onEnd(elapsedTime, getId() ?? null)
   }
 
   const isConnected = conversation.connectionState === 'connected'
@@ -170,8 +183,9 @@ export const ConversationStage = ({ agentId, onEnd }: ConversationStageProps) =>
         </div>
 
         {/* Caller info */}
-        <h2 className="mb-1 text-xl font-semibold text-white">AI Prospect</h2>
-        <p className="mb-6 text-sm text-gray-400">Cold Call Practice Session</p>
+        <h2 className="mb-1 text-xl font-semibold text-white">{prospectName}</h2>
+        <p className="mb-1 text-sm text-gray-400">{prospectCompanyName}</p>
+        <p className="mb-6 text-sm text-gray-400">{scenarioName}</p>
 
         {/* Waveform */}
         <div className="mb-10 w-full max-w-xs">
