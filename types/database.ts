@@ -7,6 +7,9 @@ export type Json =
   | Json[]
 
 export interface Database {
+  __InternalSupabase: {
+    PostgrestVersion: '14.1'
+  }
   public: {
     Tables: {
       virtual_receptionists: {
@@ -19,10 +22,12 @@ export interface Database {
           first_message: string | null
           prompt: string | null
           voice_id: string | null
-          is_active: boolean
-          created_at: string
-          updated_at: string
+          is_active: boolean | null
+          created_at: string | null
+          updated_at: string | null
           created_by: string | null
+          description: string | null
+          sort_order: number
         }
         Insert: {
           id?: string
@@ -33,10 +38,12 @@ export interface Database {
           first_message?: string | null
           prompt?: string | null
           voice_id?: string | null
-          is_active?: boolean
-          created_at?: string
-          updated_at?: string
+          is_active?: boolean | null
+          created_at?: string | null
+          updated_at?: string | null
           created_by?: string | null
+          description?: string | null
+          sort_order?: number
         }
         Update: {
           id?: string
@@ -47,10 +54,12 @@ export interface Database {
           first_message?: string | null
           prompt?: string | null
           voice_id?: string | null
-          is_active?: boolean
-          created_at?: string
-          updated_at?: string
+          is_active?: boolean | null
+          created_at?: string | null
+          updated_at?: string | null
           created_by?: string | null
+          description?: string | null
+          sort_order?: number
         }
         Relationships: []
       }
@@ -59,19 +68,19 @@ export interface Database {
           id: string
           full_name: string | null
           role: 'admin' | 'user'
-          created_at: string
+          created_at: string | null
         }
         Insert: {
           id: string
           full_name?: string | null
           role?: 'admin' | 'user'
-          created_at?: string
+          created_at?: string | null
         }
         Update: {
           id?: string
           full_name?: string | null
           role?: 'admin' | 'user'
-          created_at?: string
+          created_at?: string | null
         }
         Relationships: [
           {
@@ -79,7 +88,7 @@ export interface Database {
             columns: ['id']
             referencedRelation: 'users'
             referencedColumns: ['id']
-          }
+          },
         ]
       }
       coaching_sessions: {
@@ -91,10 +100,10 @@ export interface Database {
           prospect_name: string | null
           prospect_company_name: string | null
           scenario_snapshot: Json | null
-          started_at: string
+          started_at: string | null
           ended_at: string | null
           duration_seconds: number | null
-          created_at: string
+          created_at: string | null
         }
         Insert: {
           id?: string
@@ -104,10 +113,10 @@ export interface Database {
           prospect_name?: string | null
           prospect_company_name?: string | null
           scenario_snapshot?: Json | null
-          started_at?: string
+          started_at?: string | null
           ended_at?: string | null
           duration_seconds?: number | null
-          created_at?: string
+          created_at?: string | null
         }
         Update: {
           id?: string
@@ -117,10 +126,10 @@ export interface Database {
           prospect_name?: string | null
           prospect_company_name?: string | null
           scenario_snapshot?: Json | null
-          started_at?: string
+          started_at?: string | null
           ended_at?: string | null
           duration_seconds?: number | null
-          created_at?: string
+          created_at?: string | null
         }
         Relationships: [
           {
@@ -134,7 +143,7 @@ export interface Database {
             columns: ['scenario_id']
             referencedRelation: 'scenarios'
             referencedColumns: ['id']
-          }
+          },
         ]
       }
       scenario_categories: {
@@ -219,7 +228,7 @@ export interface Database {
             columns: ['category_id']
             referencedRelation: 'scenario_categories'
             referencedColumns: ['id']
-          }
+          },
         ]
       }
     }

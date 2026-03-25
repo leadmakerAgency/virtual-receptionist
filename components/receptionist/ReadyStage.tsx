@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Mic, Clock, Check, PhoneCall } from 'lucide-react'
 import type { ScenarioCategory, ScenarioLevel } from '@/types/scenario'
+import type { PracticeAgent } from '@/types/practiceAgent'
 
 interface ReadyStageProps {
   onStart: () => void
@@ -14,6 +15,10 @@ interface ReadyStageProps {
   prospectCompanyName: string
   onProspectNameChange: (value: string) => void
   onProspectCompanyNameChange: (value: string) => void
+  agents: PracticeAgent[]
+  selectedAgentRecordId: string
+  onAgentChange: (recordId: string) => void
+  agentsLoading: boolean
   categories: ScenarioCategory[]
   selectedCategoryKey: string
   selectedLevel: ScenarioLevel
@@ -38,6 +43,10 @@ export const ReadyStage = ({
   prospectCompanyName,
   onProspectNameChange,
   onProspectCompanyNameChange,
+  agents,
+  selectedAgentRecordId,
+  onAgentChange,
+  agentsLoading,
   categories,
   selectedCategoryKey,
   selectedLevel,
@@ -52,9 +61,12 @@ export const ReadyStage = ({
   const selectedCategory = categories.find((category) => category.key === selectedCategoryKey) ?? null
   const levelScenarios = selectedCategory?.levels[selectedLevel] ?? []
   const selectedScenario = levelScenarios.find((scenario) => scenario.id === selectedScenarioId) ?? null
+  const selectedAgent = agents.find((a) => a.id === selectedAgentRecordId) ?? null
   const canStart =
+    !agentsLoading &&
     !scenariosLoading &&
     !scenariosError &&
+    Boolean(selectedAgent?.agent_id) &&
     Boolean(prospectName.trim()) &&
     Boolean(prospectCompanyName.trim()) &&
     Boolean(selectedScenarioId)
@@ -118,6 +130,36 @@ export const ReadyStage = ({
                   maxLength={160}
                   className="border-indigo-300 bg-white text-gray-900"
                 />
+              </div>
+              <div className="grid gap-2">
+                <Label className="text-white">AI agent</Label>
+                <Select
+                  value={selectedAgentRecordId}
+                  onValueChange={onAgentChange}
+                  disabled={agentsLoading || agents.length === 0}
+                >
+                  <SelectTrigger className="border-indigo-300 bg-white text-gray-900">
+                    <SelectValue
+                      placeholder={agentsLoading ? 'Loading agents…' : 'Select an agent'}
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {agents.map((agent) => (
+                      <SelectItem key={agent.id} value={agent.id}>
+                        {agent.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {selectedAgent?.description && (
+                  <p className="text-xs text-indigo-200">{selectedAgent.description}</p>
+                )}
+                {!agentsLoading && agents.length === 0 && (
+                  <p className="text-sm text-amber-100">
+                    No active agents are available. Ask an administrator to create one in the admin
+                    panel.
+                  </p>
+                )}
               </div>
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <div className="grid gap-2">

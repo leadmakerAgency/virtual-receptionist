@@ -57,7 +57,13 @@ export default function LoginPage() {
       return
     }
 
-    router.push('/practice')
+    const meRes = await fetch('/api/me')
+    if (meRes.ok) {
+      const me = (await meRes.json()) as { isAdmin?: boolean }
+      router.push(me.isAdmin ? '/admin' : '/practice')
+    } else {
+      router.push('/practice')
+    }
     router.refresh()
   }
 
@@ -89,7 +95,13 @@ export default function LoginPage() {
     const { data: sessionData } = await supabase.auth.getSession()
     if (sessionData.session) {
       // Email confirmation not required — signed in immediately
-      router.push('/practice')
+      const meRes = await fetch('/api/me')
+      if (meRes.ok) {
+        const me = (await meRes.json()) as { isAdmin?: boolean }
+        router.push(me.isAdmin ? '/admin' : '/practice')
+      } else {
+        router.push('/practice')
+      }
       router.refresh()
     } else {
       // Email confirmation is required

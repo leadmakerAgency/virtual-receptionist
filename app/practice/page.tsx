@@ -19,6 +19,7 @@ import type {
   ScenariosResponse,
   SessionScenarioSnapshot,
 } from '@/types/scenario'
+import type { PracticeAgent } from '@/types/practiceAgent'
 
 type Stage = 'ready' | 'mic-permission' | 'audio-config' | 'conversation' | 'complete'
 
@@ -47,6 +48,8 @@ export default function PracticePage() {
 
   const [stage, setStage] = useState<Stage>('ready')
   const [agentId, setAgentId] = useState<string | null>(null)
+  const [agents, setAgents] = useState<PracticeAgent[]>([])
+  const [selectedAgentRecordId, setSelectedAgentRecordId] = useState('')
   const [loadingAgent, setLoadingAgent] = useState(true)
   const [agentError, setAgentError] = useState<string | null>(null)
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null)
@@ -141,32 +144,46 @@ export default function PracticePage() {
     [selectedScenario, selectedCategory]
   )
 
-  // Fetch the active coaching agent from Supabase
   useEffect(() => {
-    const fetchAgent = async () => {
+    const fetchAgents = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession()
-        const response = await fetch('/api/coaching-agent', {
+        const response = await fetch('/api/agents', {
           headers: {
             Authorization: `Bearer ${session?.access_token}`,
           },
         })
         if (!response.ok) {
           const err = await response.json()
-          throw new Error(err.error ?? 'Failed to load coaching agent')
+          throw new Error(err.error ?? 'Failed to load agents')
         }
-        const { agent_id } = await response.json()
-        setAgentId(agent_id)
+        const { agents: list } = (await response.json()) as { agents: PracticeAgent[] }
+        setAgents(list)
+        const first = list[0]
+        if (first?.agent_id) {
+          setAgentId(first.agent_id)
+          setSelectedAgentRecordId(first.id)
+        } else {
+          setAgentId(null)
+          setSelectedAgentRecordId('')
+        }
       } catch (err) {
-        const msg = err instanceof Error ? err.message : 'Failed to load coaching agent'
+        const msg = err instanceof Error ? err.message : 'Failed to load agents'
         setAgentError(msg)
       } finally {
         setLoadingAgent(false)
       }
     }
 
-    fetchAgent()
+    fetchAgents()
   }, [supabase])
+
+  const handleAgentSelect = useCallback((recordId: string) => {
+    setSelectedAgentRecordId(recordId)
+    const row = agents.find((a) => a.id === recordId)
+    setAgentId(row?.agent_id ?? null)
+    setReadyError(null)
+  }, [agents])
 
   const handleStart = () => {
     if (!prospectName.trim() || !prospectCompanyName.trim()) {
@@ -175,6 +192,10 @@ export default function PracticePage() {
     }
     if (!selectedScenario) {
       setReadyError('Please choose a valid scenario before starting.')
+      return
+    }
+    if (!agentId || !selectedAgentRecordId) {
+      setReadyError('Please select an AI agent before starting.')
       return
     }
     setReadyError(null)
@@ -432,6 +453,10 @@ export default function PracticePage() {
               setProspectCompanyName(value)
               setReadyError(null)
             }}
+            agents={agents}
+            selectedAgentRecordId={selectedAgentRecordId}
+            onAgentChange={handleAgentSelect}
+            agentsLoading={loadingAgent}
             categories={scenarioCategories}
             selectedCategoryKey={selectedCategoryKey}
             selectedLevel={selectedLevel}
