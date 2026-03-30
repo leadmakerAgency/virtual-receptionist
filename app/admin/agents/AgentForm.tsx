@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { DEFAULT_VOICE_ID } from '@/lib/elevenlabs/conversationConfig'
+import { AgentUserAssignmentPanel } from '@/components/admin/AgentUserAssignmentPanel'
 
 export type AgentFormValues = {
   slug: string
@@ -154,7 +155,7 @@ export const AgentForm = ({ mode, agentId, initialValues }: AgentFormProps) => {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-[640px] space-y-6">
+    <form onSubmit={handleSubmit} className="max-w-[760px] space-y-6">
       {error && (
         <Alert variant="destructive">
           <AlertDescription>{error}</AlertDescription>
@@ -258,6 +259,8 @@ export const AgentForm = ({ mode, agentId, initialValues }: AgentFormProps) => {
           </Label>
         </div>
       </div>
+
+      {mode === 'edit' && agentId ? <AgentUserAssignmentPanel agentId={agentId} /> : null}
 
       <div className="flex flex-wrap gap-3">
         <Button type="submit" disabled={loading}>

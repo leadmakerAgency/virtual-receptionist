@@ -2,32 +2,18 @@
 
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Mic, Clock, Check, PhoneCall } from 'lucide-react'
-import type { ScenarioCategory, ScenarioLevel } from '@/types/scenario'
+import type { ScenarioLevel } from '@/types/scenario'
 import type { PracticeAgent } from '@/types/practiceAgent'
 
 interface ReadyStageProps {
   onStart: () => void
-  prospectName: string
-  prospectCompanyName: string
-  onProspectNameChange: (value: string) => void
-  onProspectCompanyNameChange: (value: string) => void
-  agents: PracticeAgent[]
+  agent: PracticeAgent
   selectedAgentRecordId: string
-  onAgentChange: (recordId: string) => void
-  agentsLoading: boolean
-  categories: ScenarioCategory[]
-  selectedCategoryKey: string
   selectedLevel: ScenarioLevel
-  selectedScenarioId: string
-  onCategoryChange: (categoryKey: string) => void
   onLevelChange: (level: ScenarioLevel) => void
-  onScenarioChange: (scenarioId: string) => void
-  scenariosLoading: boolean
-  scenariosError: string | null
   formError: string | null
 }
 
@@ -39,56 +25,32 @@ const LEVEL_OPTIONS: { value: ScenarioLevel; label: string }[] = [
 
 export const ReadyStage = ({
   onStart,
-  prospectName,
-  prospectCompanyName,
-  onProspectNameChange,
-  onProspectCompanyNameChange,
-  agents,
+  agent,
   selectedAgentRecordId,
-  onAgentChange,
-  agentsLoading,
-  categories,
-  selectedCategoryKey,
   selectedLevel,
-  selectedScenarioId,
-  onCategoryChange,
   onLevelChange,
-  onScenarioChange,
-  scenariosLoading,
-  scenariosError,
   formError,
 }: ReadyStageProps) => {
-  const selectedCategory = categories.find((category) => category.key === selectedCategoryKey) ?? null
-  const levelScenarios = selectedCategory?.levels[selectedLevel] ?? []
-  const selectedScenario = levelScenarios.find((scenario) => scenario.id === selectedScenarioId) ?? null
-  const selectedAgent = agents.find((a) => a.id === selectedAgentRecordId) ?? null
-  const canStart =
-    !agentsLoading &&
-    !scenariosLoading &&
-    !scenariosError &&
-    Boolean(selectedAgent?.agent_id) &&
-    Boolean(prospectName.trim()) &&
-    Boolean(prospectCompanyName.trim()) &&
-    Boolean(selectedScenarioId)
+  const canStart = Boolean(agent.agent_id) && Boolean(selectedAgentRecordId)
 
   return (
-    <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center bg-gray-50 p-4">
+    <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center bg-gradient-to-b from-purple-50 to-zinc-50 p-4">
       <div className="w-full max-w-2xl">
         <h1 className="mb-2 text-3xl font-bold text-gray-900">
           Ready to Practice?
         </h1>
         <p className="mb-8 text-gray-600">
-          Set the prospect identity, choose your category and level, then start your simulation.
+          Review your selected agent and choose the difficulty level for this call.
         </p>
 
-        <Card className="mb-6 bg-indigo-600 text-white">
+        <Card className="mb-6 border-purple-200 bg-purple-600 text-white">
           <CardContent className="p-6">
             <div className="mb-6 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <PhoneCall className="h-6 w-6" />
                 <div>
                   <h2 className="text-xl font-bold">Cold Call Simulation</h2>
-                  <p className="text-sm text-indigo-200">AI-Powered Practice</p>
+                  <p className="text-sm text-purple-100">AI-Powered Practice</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -98,134 +60,34 @@ export const ReadyStage = ({
             </div>
 
             <div className="mb-6">
-              <h3 className="mb-3 text-lg font-bold">The Scenario</h3>
-              {selectedScenario ? (
-                <p className="text-indigo-100">{selectedScenario.brief}</p>
-              ) : (
-                <p className="text-indigo-100">
-                  Choose a category, level, and scenario to configure this call.
-                </p>
-              )}
+              <h3 className="mb-3 text-lg font-bold">Selected AI Agent</h3>
+              <p className="text-purple-100">{agent.name}</p>
+              <p className="mt-1 text-sm text-purple-100/90">
+                {agent.description || 'No description provided.'}
+              </p>
             </div>
 
             <div className="space-y-3">
               <div className="grid gap-2">
-                <Label htmlFor="prospect-name" className="text-white">Prospect Name</Label>
-                <Input
-                  id="prospect-name"
-                  value={prospectName}
-                  onChange={(event) => onProspectNameChange(event.target.value)}
-                  placeholder="e.g. Michael Carter"
-                  maxLength={120}
-                  className="border-indigo-300 bg-white text-gray-900"
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="company-name" className="text-white">Prospect Company Name</Label>
-                <Input
-                  id="company-name"
-                  value={prospectCompanyName}
-                  onChange={(event) => onProspectCompanyNameChange(event.target.value)}
-                  placeholder="e.g. Carter Realty Group"
-                  maxLength={160}
-                  className="border-indigo-300 bg-white text-gray-900"
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label className="text-white">AI agent</Label>
+                <Label className="text-white">Level</Label>
                 <Select
-                  value={selectedAgentRecordId}
-                  onValueChange={onAgentChange}
-                  disabled={agentsLoading || agents.length === 0}
+                  value={selectedLevel}
+                  onValueChange={(value) => onLevelChange(value as ScenarioLevel)}
                 >
-                  <SelectTrigger className="border-indigo-300 bg-white text-gray-900">
-                    <SelectValue
-                      placeholder={agentsLoading ? 'Loading agents…' : 'Select an agent'}
-                    />
+                  <SelectTrigger className="border-purple-300 bg-white text-gray-900">
+                    <SelectValue placeholder="Select level" />
                   </SelectTrigger>
                   <SelectContent>
-                    {agents.map((agent) => (
-                      <SelectItem key={agent.id} value={agent.id}>
-                        {agent.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {selectedAgent?.description && (
-                  <p className="text-xs text-indigo-200">{selectedAgent.description}</p>
-                )}
-                {!agentsLoading && agents.length === 0 && (
-                  <p className="text-sm text-amber-100">
-                    No active agents are available. Ask an administrator to create one in the admin
-                    panel.
-                  </p>
-                )}
-              </div>
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                <div className="grid gap-2">
-                  <Label className="text-white">Category</Label>
-                  <Select value={selectedCategoryKey} onValueChange={onCategoryChange} disabled={scenariosLoading}>
-                    <SelectTrigger className="border-indigo-300 bg-white text-gray-900">
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((category) => (
-                        <SelectItem key={category.id} value={category.key}>
-                          {category.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid gap-2">
-                  <Label className="text-white">Level</Label>
-                  <Select
-                    value={selectedLevel}
-                    onValueChange={(value) => onLevelChange(value as ScenarioLevel)}
-                    disabled={scenariosLoading}
-                  >
-                    <SelectTrigger className="border-indigo-300 bg-white text-gray-900">
-                      <SelectValue placeholder="Select level" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {LEVEL_OPTIONS.map((level) => (
-                        <SelectItem key={level.value} value={level.value}>
-                          {level.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="grid gap-2">
-                <Label className="text-white">Scenario</Label>
-                <Select
-                  value={selectedScenarioId}
-                  onValueChange={onScenarioChange}
-                  disabled={scenariosLoading || !selectedCategory || levelScenarios.length === 0}
-                >
-                  <SelectTrigger className="border-indigo-300 bg-white text-gray-900">
-                    <SelectValue placeholder="Select scenario" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {levelScenarios.map((scenario) => (
-                      <SelectItem key={scenario.id} value={scenario.id}>
-                        {scenario.name}
+                    {LEVEL_OPTIONS.map((level) => (
+                      <SelectItem key={level.value} value={level.value}>
+                        {level.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-              {scenariosError && (
-                <p className="text-sm text-red-200">{scenariosError}</p>
-              )}
-              {!scenariosError && formError && (
+              {formError && (
                 <p className="text-sm text-red-200">{formError}</p>
-              )}
-              {!scenariosError && !scenariosLoading && levelScenarios.length === 0 && (
-                <p className="text-sm text-amber-100">
-                  No active scenarios found for this category and level.
-                </p>
               )}
               <div className="flex items-center gap-2">
                 <Check className="h-5 w-5 text-green-300" />
@@ -250,7 +112,7 @@ export const ReadyStage = ({
         <Button
           onClick={onStart}
           disabled={!canStart}
-          className="w-full bg-indigo-600 text-white hover:bg-indigo-700"
+          className="w-full bg-purple-600 text-white hover:bg-purple-700"
           size="lg"
         >
           <Mic className="mr-2 h-5 w-5" />

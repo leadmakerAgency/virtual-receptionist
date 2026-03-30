@@ -146,6 +146,34 @@ export interface Database {
           },
         ]
       }
+      user_agent_assignments: {
+        Row: {
+          id: string
+          user_id: string
+          agent_record_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          agent_record_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          agent_record_id?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'user_agent_assignments_agent_record_id_fkey'
+            columns: ['agent_record_id']
+            referencedRelation: 'virtual_receptionists'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       scenario_categories: {
         Row: {
           id: string

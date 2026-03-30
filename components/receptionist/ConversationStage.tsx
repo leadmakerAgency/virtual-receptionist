@@ -4,15 +4,12 @@ import { useState, useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Mic, MicOff, PhoneOff, Clock, Phone } from 'lucide-react'
 import { useConversation } from '@/hooks/useConversation'
-import type { ConversationDynamicVariables } from '@/types/scenario'
+import type { ScenarioLevel } from '@/types/scenario'
 
 interface ConversationStageProps {
   agentId: string
   onEnd: (durationSeconds: number, conversationId: string | null) => void
-  prospectName: string
-  prospectCompanyName: string
-  scenarioName: string
-  dynamicVariables: ConversationDynamicVariables
+  selectedLevel: ScenarioLevel
 }
 
 const PulseRings = ({ active }: { active: boolean }) => (
@@ -84,14 +81,11 @@ const VoiceWaveform = ({ active }: { active: boolean }) => {
 export const ConversationStage = ({
   agentId,
   onEnd,
-  prospectName,
-  prospectCompanyName,
-  scenarioName,
-  dynamicVariables,
+  selectedLevel,
 }: ConversationStageProps) => {
   const [startTime, setStartTime] = useState<Date | null>(null)
   const [elapsedTime, setElapsedTime] = useState(0)
-  const conversation = useConversation(agentId, dynamicVariables)
+  const conversation = useConversation(agentId, selectedLevel)
   const { startSession, endSession, getId } = conversation
 
   useEffect(() => {
@@ -183,9 +177,8 @@ export const ConversationStage = ({
         </div>
 
         {/* Caller info */}
-        <h2 className="mb-1 text-xl font-semibold text-white">{prospectName}</h2>
-        <p className="mb-1 text-sm text-gray-400">{prospectCompanyName}</p>
-        <p className="mb-6 text-sm text-gray-400">{scenarioName}</p>
+        <h2 className="mb-1 text-xl font-semibold text-white">AI Prospect</h2>
+        <p className="mb-6 text-sm capitalize text-gray-400">Level: {selectedLevel}</p>
 
         {/* Waveform */}
         <div className="mb-10 w-full max-w-xs">
