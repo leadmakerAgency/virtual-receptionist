@@ -85,16 +85,36 @@ export const ConversationStage = ({
 }: ConversationStageProps) => {
   const [startTime, setStartTime] = useState<Date | null>(null)
   const [elapsedTime, setElapsedTime] = useState(0)
+  const [startError, setStartError] = useState<string | null>(null)
   const conversation = useConversation(agentId, selectedLevel)
   const { startSession, endSession, getId } = conversation
+  const startSessionRef = useRef(startSession)
+  const endSessionRef = useRef(endSession)
 
   useEffect(() => {
+    startSessionRef.current = startSession
+  }, [startSession])
+
+  useEffect(() => {
+    endSessionRef.current = endSession
+  }, [endSession])
+
+  useEffect(() => {
+    let disposed = false
     const start = async () => {
       try {
-        await startSession()
+        setStartError(null)
+        setStartTime(null)
+        setElapsedTime(0)
+        await startSessionRef.current()
+        if (disposed) return
         setStartTime(new Date())
       } catch (error) {
         console.error('Failed to start conversation:', error)
+        if (disposed) return
+        const message =
+          error instanceof Error ? error.message : 'Could not connect to the agent conversation.'
+        setStartError(message)
       }
     }
 
@@ -103,9 +123,10 @@ export const ConversationStage = ({
     }
 
     return () => {
-      endSession()
+      disposed = true
+      void endSessionRef.current()
     }
-  }, [agentId, startSession, endSession])
+  }, [agentId, selectedLevel])
 
   useEffect(() => {
     if (!startTime) return
@@ -184,6 +205,11 @@ export const ConversationStage = ({
         <div className="mb-10 w-full max-w-xs">
           <VoiceWaveform active={isConnected && !conversation.micMuted} />
         </div>
+        {!isConnected && (startError || conversation.lastError) ? (
+          <p className="max-w-md rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-center text-xs text-red-200">
+            {startError || conversation.lastError}
+          </p>
+        ) : null}
       </div>
 
       {/* Bottom controls */}

@@ -22,12 +22,19 @@ const buildSessionPrompt = (level: ScenarioLevel) => {
   ].join('\n')
 }
 
+const getErrorMessage = (error: unknown, fallback: string) => {
+  if (error instanceof Error && error.message) return error.message
+  if (typeof error === 'string' && error.trim()) return error
+  return fallback
+}
+
 export const useConversation = (
   agentId: string | null,
   selectedLevel: ScenarioLevel
 ) => {
   const [micMuted, setMicMuted] = useState(false)
   const [volume, setVolume] = useState(0.8)
+  const [lastError, setLastError] = useState<string | null>(null)
   const [connectionState, setConnectionState] = useState<'idle' | 'connecting' | 'connected' | 'disconnected'>('idle')
 
   const conversation = useElevenLabsConversation({
@@ -42,6 +49,8 @@ export const useConversation = (
     },
     onError: (error) => {
       console.error('Conversation error:', error)
+      const message = getErrorMessage(error, 'Conversation connection failed.')
+      setLastError(message)
       setConnectionState('disconnected')
     },
   })
@@ -51,6 +60,7 @@ export const useConversation = (
       throw new Error('Agent ID is required')
     }
 
+    setLastError(null)
     setConnectionState('connecting')
     try {
       await conversation.startSession({
@@ -65,6 +75,8 @@ export const useConversation = (
         },
       })
     } catch (error) {
+      const message = getErrorMessage(error, 'Failed to start the conversation session.')
+      setLastError(message)
       setConnectionState('disconnected')
       throw error
     }
@@ -87,6 +99,7 @@ export const useConversation = (
     ...conversation,
     micMuted,
     volume,
+    lastError,
     connectionState,
     startSession,
     endSession,
