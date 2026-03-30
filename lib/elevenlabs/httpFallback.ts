@@ -38,7 +38,11 @@ const normalizeErrorDetail = (raw: unknown): ElevenLabsProviderError => {
   }
 }
 
-const fetchJson = async <T>(path: string, method: 'POST' | 'PATCH', body: unknown): Promise<T> => {
+const fetchJson = async <T>(
+  path: string,
+  method: 'GET' | 'POST' | 'PATCH',
+  body?: unknown
+): Promise<T> => {
   const { apiKey, baseUrl } = getElevenLabsConfig()
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), 25000)
@@ -50,7 +54,7 @@ const fetchJson = async <T>(path: string, method: 'POST' | 'PATCH', body: unknow
         'Content-Type': 'application/json',
         'xi-api-key': apiKey,
       },
-      body: JSON.stringify(body),
+      body: method === 'GET' ? undefined : JSON.stringify(body),
       signal: controller.signal,
     })
 
@@ -108,6 +112,16 @@ export const createAgentViaHttpFallback = async (request: {
   )
 }
 
+export const getAgentViaHttpFallback = async (agentId: string) => {
+  return fetchJson<{
+    agent_id?: string
+    conversation_config?: {
+      agent?: { first_message?: string; prompt?: { prompt?: string } }
+      tts?: { voice_id?: string }
+    }
+  }>(`/v1/convai/agents/${encodeURIComponent(agentId)}`, 'GET')
+}
+
 export const updateAgentViaHttpFallback = async (
   agentId: string,
   request: {
@@ -116,6 +130,19 @@ export const updateAgentViaHttpFallback = async (
   }
 ) => {
   return fetchJson<unknown>(`/v1/convai/agents/${encodeURIComponent(agentId)}`, 'PATCH', request)
+}
+
+export const publishAgentViaHttpBestEffort = async (agentId: string) => {
+  try {
+    await fetchJson<unknown>(
+      `/v1/convai/agents/${encodeURIComponent(agentId)}/deployments`,
+      'POST',
+      {}
+    )
+  } catch (error) {
+    // Some workspaces/agent setups do not use deployments; this is best-effort and non-fatal.
+    console.warn('ElevenLabs publish deployment skipped or failed:', error)
+  }
 }
 
 export const normalizeSdkError = (err: unknown): ElevenLabsProviderError => {

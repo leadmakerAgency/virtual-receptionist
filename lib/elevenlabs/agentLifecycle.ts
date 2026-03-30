@@ -4,9 +4,12 @@ import { buildConversationConfig } from '@/lib/elevenlabs/conversationConfig'
 import {
   createAgentViaHttpFallback,
   ElevenLabsError,
+  getAgentViaHttpFallback,
   normalizeSdkError,
+  publishAgentViaHttpBestEffort,
   updateAgentViaHttpFallback,
 } from '@/lib/elevenlabs/httpFallback'
+import { buildConversationConfigHttpPayload } from '@/lib/elevenlabs/conversationConfig'
 
 const withFallback = async <T, U>(
   operation: () => Promise<T>,
@@ -34,6 +37,52 @@ const withFallback = async <T, U>(
   }
 }
 
+const withHttpPrimaryFallback = async <T, U>(
+  operation: () => Promise<T>,
+  fallback: () => Promise<U>
+): Promise<T | U> => {
+  try {
+    return await operation()
+  } catch (httpError) {
+    if (httpError instanceof ElevenLabsError) {
+      console.warn('ElevenLabs HTTP call failed, trying SDK fallback:', httpError)
+    } else {
+      console.warn('ElevenLabs HTTP call failed, trying SDK fallback:', httpError)
+    }
+    return withFallback(fallback, operation)
+  }
+}
+
+const assertAgentConfigSynced = async (
+  agentId: string,
+  expected: { prompt: string; firstMessage: string; voiceId: string }
+) => {
+  const remote = await getAgentViaHttpFallback(agentId)
+  const remotePrompt = remote.conversation_config?.agent?.prompt?.prompt?.trim() ?? ''
+  const remoteFirstMessage = remote.conversation_config?.agent?.first_message?.trim() ?? ''
+  const remoteVoiceId = remote.conversation_config?.tts?.voice_id?.trim() ?? ''
+
+  if (
+    remotePrompt !== expected.prompt.trim() ||
+    remoteFirstMessage !== expected.firstMessage.trim() ||
+    (remoteVoiceId && remoteVoiceId !== expected.voiceId.trim())
+  ) {
+    throw new ElevenLabsError({
+      message:
+        'ElevenLabs agent settings were not fully synced (prompt/first message/voice). Please retry the update.',
+      code: 'agent_sync_mismatch',
+      details: {
+        remotePrompt,
+        remoteFirstMessage,
+        remoteVoiceId,
+        expectedPrompt: expected.prompt.trim(),
+        expectedFirstMessage: expected.firstMessage.trim(),
+        expectedVoiceId: expected.voiceId.trim(),
+      },
+    })
+  }
+}
+
 export const createElevenLabsAgentRecord = async (input: {
   name: string
   prompt: string
@@ -42,16 +91,17 @@ export const createElevenLabsAgentRecord = async (input: {
 }) => {
   const elevenlabsClient = getElevenLabsClient()
   const conversationConfig = buildConversationConfig(input)
-  const created = await withFallback(
+  const conversationConfigHttp = buildConversationConfigHttpPayload(input)
+  const created = await withHttpPrimaryFallback(
+    () =>
+      createAgentViaHttpFallback({
+        name: input.name.trim(),
+        conversation_config: conversationConfigHttp,
+      }),
     () =>
       elevenlabsClient.conversationalAi.agents.create({
         name: input.name.trim(),
         conversationConfig,
-      }),
-    () =>
-      createAgentViaHttpFallback({
-        name: input.name.trim(),
-        conversation_config: conversationConfig as unknown as Json,
       })
   )
 
@@ -64,9 +114,16 @@ export const createElevenLabsAgentRecord = async (input: {
     })
   }
 
+  await assertAgentConfigSynced(createdAgentId, {
+    prompt: input.prompt,
+    firstMessage: input.firstMessage,
+    voiceId: input.voiceId,
+  })
+  await publishAgentViaHttpBestEffort(createdAgentId)
+
   return {
     agentId: createdAgentId,
-    agentConfigSnapshot: conversationConfig as unknown as Json,
+    agentConfigSnapshot: conversationConfigHttp,
   }
 }
 
@@ -81,20 +138,28 @@ export const updateElevenLabsAgent = async (
 ) => {
   const elevenlabsClient = getElevenLabsClient()
   const conversationConfig = buildConversationConfig(input)
-  await withFallback(
+  const conversationConfigHttp = buildConversationConfigHttpPayload(input)
+  await withHttpPrimaryFallback(
+    () =>
+      updateAgentViaHttpFallback(agentId, {
+        name: input.name?.trim(),
+        conversation_config: conversationConfigHttp,
+      }),
     () =>
       elevenlabsClient.conversationalAi.agents.update(agentId, {
         name: input.name?.trim(),
         conversationConfig,
-      }),
-    () =>
-      updateAgentViaHttpFallback(agentId, {
-        name: input.name?.trim(),
-        conversation_config: conversationConfig as unknown as Json,
       })
   )
 
+  await assertAgentConfigSynced(agentId, {
+    prompt: input.prompt,
+    firstMessage: input.firstMessage,
+    voiceId: input.voiceId,
+  })
+  await publishAgentViaHttpBestEffort(agentId)
+
   return {
-    agentConfigSnapshot: conversationConfig as unknown as Json,
+    agentConfigSnapshot: conversationConfigHttp,
   }
 }

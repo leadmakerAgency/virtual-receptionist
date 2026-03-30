@@ -2,33 +2,20 @@
 
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Mic, Clock, Check, PhoneCall } from 'lucide-react'
-import type { ScenarioLevel } from '@/types/scenario'
 import type { PracticeAgent } from '@/types/practiceAgent'
 
 interface ReadyStageProps {
   onStart: () => void
   agent: PracticeAgent
   selectedAgentRecordId: string
-  selectedLevel: ScenarioLevel
-  onLevelChange: (level: ScenarioLevel) => void
   formError: string | null
 }
-
-const LEVEL_OPTIONS: { value: ScenarioLevel; label: string }[] = [
-  { value: 'beginner', label: 'Beginner' },
-  { value: 'intermediate', label: 'Intermediate' },
-  { value: 'advanced', label: 'Advanced' },
-]
 
 export const ReadyStage = ({
   onStart,
   agent,
   selectedAgentRecordId,
-  selectedLevel,
-  onLevelChange,
   formError,
 }: ReadyStageProps) => {
   const canStart = Boolean(agent.agent_id) && Boolean(selectedAgentRecordId)
@@ -40,7 +27,7 @@ export const ReadyStage = ({
           Ready to Practice?
         </h1>
         <p className="mb-8 text-gray-600">
-          Review your selected agent and choose the difficulty level for this call.
+          Review your selected agent settings, then start the simulation.
         </p>
 
         <Card className="mb-6 border-purple-200 bg-purple-600 text-white">
@@ -68,24 +55,6 @@ export const ReadyStage = ({
             </div>
 
             <div className="space-y-3">
-              <div className="grid gap-2">
-                <Label className="text-white">Level</Label>
-                <Select
-                  value={selectedLevel}
-                  onValueChange={(value) => onLevelChange(value as ScenarioLevel)}
-                >
-                  <SelectTrigger className="border-purple-300 bg-white text-gray-900">
-                    <SelectValue placeholder="Select level" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {LEVEL_OPTIONS.map((level) => (
-                      <SelectItem key={level.value} value={level.value}>
-                        {level.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
               {formError && (
                 <p className="text-sm text-red-200">{formError}</p>
               )}

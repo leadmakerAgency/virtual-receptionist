@@ -4,12 +4,10 @@ import { useState, useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Mic, MicOff, PhoneOff, Clock, Phone } from 'lucide-react'
 import { useConversation } from '@/hooks/useConversation'
-import type { ScenarioLevel } from '@/types/scenario'
 
 interface ConversationStageProps {
   agentId: string
   onEnd: (durationSeconds: number, conversationId: string | null) => void
-  selectedLevel: ScenarioLevel
 }
 
 const PulseRings = ({ active }: { active: boolean }) => (
@@ -81,12 +79,11 @@ const VoiceWaveform = ({ active }: { active: boolean }) => {
 export const ConversationStage = ({
   agentId,
   onEnd,
-  selectedLevel,
 }: ConversationStageProps) => {
   const [startTime, setStartTime] = useState<Date | null>(null)
   const [elapsedTime, setElapsedTime] = useState(0)
   const [startError, setStartError] = useState<string | null>(null)
-  const conversation = useConversation(agentId, selectedLevel)
+  const conversation = useConversation(agentId)
   const { startSession, endSession, getId } = conversation
   const startSessionRef = useRef(startSession)
   const endSessionRef = useRef(endSession)
@@ -126,7 +123,7 @@ export const ConversationStage = ({
       disposed = true
       void endSessionRef.current()
     }
-  }, [agentId, selectedLevel])
+  }, [agentId])
 
   useEffect(() => {
     if (!startTime) return
@@ -199,7 +196,7 @@ export const ConversationStage = ({
 
         {/* Caller info */}
         <h2 className="mb-1 text-xl font-semibold text-white">AI Prospect</h2>
-        <p className="mb-6 text-sm capitalize text-gray-400">Level: {selectedLevel}</p>
+        <p className="mb-6 text-sm capitalize text-gray-400">Live conversation</p>
 
         {/* Waveform */}
         <div className="mb-10 w-full max-w-xs">

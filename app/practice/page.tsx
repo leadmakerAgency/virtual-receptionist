@@ -11,7 +11,6 @@ import { ConversationStage } from '@/components/receptionist/ConversationStage'
 import { Button } from '@/components/ui/button'
 import { LogOut, PhoneCall } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import type { ScenarioLevel } from '@/types/scenario'
 import type { PracticeAgent } from '@/types/practiceAgent'
 
 type Stage = 'ready' | 'mic-permission' | 'audio-config' | 'conversation' | 'complete'
@@ -19,8 +18,6 @@ type Stage = 'ready' | 'mic-permission' | 'audio-config' | 'conversation' | 'com
 interface SessionSummary {
   durationSeconds: number
 }
-
-const DEFAULT_LEVEL: ScenarioLevel = 'beginner'
 
 const PracticePageContent = () => {
   const router = useRouter()
@@ -37,7 +34,6 @@ const PracticePageContent = () => {
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null)
   const [sessionSummary, setSessionSummary] = useState<SessionSummary | null>(null)
   const [userEmail, setUserEmail] = useState<string | null>(null)
-  const [selectedLevel, setSelectedLevel] = useState<ScenarioLevel>(DEFAULT_LEVEL)
   const [readyError, setReadyError] = useState<string | null>(null)
 
   const selectedAgent = useMemo(
@@ -108,14 +104,6 @@ const PracticePageContent = () => {
     setReadyError(null)
     setStage('mic-permission')
   }
-
-  const handleLevelChange = useCallback(
-    (level: ScenarioLevel) => {
-      setSelectedLevel(level)
-      setReadyError(null)
-    },
-    []
-  )
 
   const handleMicPermissionGranted = useCallback(() => {
     setStage('audio-config')
@@ -345,8 +333,6 @@ const PracticePageContent = () => {
             onStart={handleStart}
             agent={selectedAgent}
             selectedAgentRecordId={selectedAgentRecordId}
-            selectedLevel={selectedLevel}
-            onLevelChange={handleLevelChange}
             formError={readyError}
           />
           ) : null
@@ -367,7 +353,6 @@ const PracticePageContent = () => {
           <ConversationStage
             agentId={agentId}
             onEnd={handleConversationEnd}
-            selectedLevel={selectedLevel}
           />
         ) : null}
       </main>
