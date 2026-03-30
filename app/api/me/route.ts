@@ -1,22 +1,27 @@
-import { NextResponse } from 'next/server'
 import { getSessionWithProfile, isAdminUser } from '@/lib/auth/isAdmin'
+import { createRequestId, jsonError, jsonOk } from '@/lib/api/response'
 
 export async function GET() {
+  const requestId = createRequestId()
   try {
     const session = await getSessionWithProfile()
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return jsonError(401, { error: 'Unauthorized', code: 'unauthorized' }, requestId)
     }
 
-    return NextResponse.json({
-      id: session.user.id,
-      email: session.user.email,
-      role: session.role,
-      isAdmin: isAdminUser(session),
-    })
+    return jsonOk(
+      {
+        id: session.user.id,
+        email: session.user.email,
+        role: session.role,
+        isAdmin: isAdminUser(session),
+      },
+      200,
+      requestId
+    )
   } catch (err) {
     console.error('GET /api/me failed:', err)
     const message = err instanceof Error ? err.message : 'Failed to fetch user profile'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return jsonError(500, { error: message, code: 'internal_error' }, requestId)
   }
 }

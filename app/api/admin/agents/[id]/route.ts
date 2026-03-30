@@ -1,8 +1,9 @@
-import { NextResponse } from 'next/server'
 import type { Json } from '@/types/database'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { requireAdminApi } from '@/lib/auth/requireAdminApi'
+import { requireAdminApiWithRequestId } from '@/lib/auth/requireAdminApi'
 import { updateElevenLabsAgent } from '@/lib/elevenlabs/agentLifecycle'
+import { createRequestId, jsonError, jsonOk } from '@/lib/api/response'
+import { ElevenLabsError } from '@/lib/elevenlabs/httpFallback'
 import { isValidSlug } from '@/lib/validation/slug'
 
 type PatchBody = {
@@ -17,8 +18,9 @@ type PatchBody = {
 }
 
 export async function PATCH(request: Request, ctx: { params: Promise<{ id: string }> }) {
+  const requestId = createRequestId()
   try {
-    const gate = await requireAdminApi()
+    const gate = await requireAdminApiWithRequestId(requestId)
     if (!gate.ok) return gate.response
 
     const { id } = await ctx.params
@@ -27,7 +29,7 @@ export async function PATCH(request: Request, ctx: { params: Promise<{ id: strin
     try {
       body = (await request.json()) as PatchBody
     } catch {
-      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
+      return jsonError(400, { error: 'Invalid JSON body', code: 'invalid_json' }, requestId)
     }
 
     const adminClient = createAdminClient()
@@ -38,33 +40,45 @@ export async function PATCH(request: Request, ctx: { params: Promise<{ id: strin
       .single()
 
     if (fetchError || !existing) {
-      return NextResponse.json({ error: 'Agent not found.' }, { status: 404 })
+      return jsonError(404, { error: 'Agent not found.', code: 'not_found' }, requestId)
     }
 
     if (!existing.agent_id) {
-      return NextResponse.json({ error: 'This record has no ElevenLabs agent id.' }, { status: 400 })
+      return jsonError(
+        400,
+        { error: 'This record has no ElevenLabs agent id.', code: 'missing_agent_id' },
+        requestId
+      )
     }
 
     const slug = body.slug !== undefined ? body.slug.trim().toLowerCase() : existing.slug
     if (body.slug !== undefined) {
-    if (!slug || !isValidSlug(slug)) {
-      return NextResponse.json(
-        { error: 'Slug must be lowercase letters, numbers, and single hyphens between words.' },
-        { status: 400 }
-      )
-    }
-    if (slug !== existing.slug) {
-      const { data: clash } = await adminClient
-        .from('virtual_receptionists')
-        .select('id')
-        .eq('slug', slug)
-        .neq('id', id)
-        .maybeSingle()
-      if (clash) {
-        return NextResponse.json({ error: 'That slug is already in use.' }, { status: 409 })
+      if (!slug || !isValidSlug(slug)) {
+        return jsonError(
+          400,
+          {
+            error: 'Slug must be lowercase letters, numbers, and single hyphens between words.',
+            code: 'invalid_slug',
+          },
+          requestId
+        )
+      }
+      if (slug !== existing.slug) {
+        const { data: clash } = await adminClient
+          .from('virtual_receptionists')
+          .select('id')
+          .eq('slug', slug)
+          .neq('id', id)
+          .maybeSingle()
+        if (clash) {
+          return jsonError(
+            409,
+            { error: 'That slug is already in use.', code: 'slug_conflict' },
+            requestId
+          )
+        }
       }
     }
-  }
 
     const name = body.name !== undefined ? body.name.trim() : existing.name
     const prompt = body.prompt !== undefined ? body.prompt : (existing.prompt ?? '')
@@ -74,13 +88,17 @@ export async function PATCH(request: Request, ctx: { params: Promise<{ id: strin
       body.voice_id !== undefined ? body.voice_id.trim() : (existing.voice_id ?? '')
 
     if (!name) {
-      return NextResponse.json({ error: 'Name is required.' }, { status: 400 })
+      return jsonError(400, { error: 'Name is required.', code: 'missing_name' }, requestId)
     }
     if (!String(prompt).trim()) {
-      return NextResponse.json({ error: 'Prompt is required.' }, { status: 400 })
+      return jsonError(400, { error: 'Prompt is required.', code: 'missing_prompt' }, requestId)
     }
     if (!String(first_message).trim()) {
-      return NextResponse.json({ error: 'First message is required.' }, { status: 400 })
+      return jsonError(
+        400,
+        { error: 'First message is required.', code: 'missing_first_message' },
+        requestId
+      )
     }
 
     let agentConfigSnapshot: Json | null = existing.agent_config
@@ -94,8 +112,20 @@ export async function PATCH(request: Request, ctx: { params: Promise<{ id: strin
       agentConfigSnapshot = updated.agentConfigSnapshot
     } catch (err) {
       console.error('ElevenLabs update agent failed:', err)
+      if (err instanceof ElevenLabsError) {
+        return jsonError(
+          err.statusCode && err.statusCode >= 400 ? err.statusCode : 502,
+          {
+            error: err.message,
+            code: err.code ?? 'elevenlabs_error',
+            details: err.details,
+            requestId: err.requestId ?? requestId,
+          },
+          err.requestId ?? requestId
+        )
+      }
       const message = err instanceof Error ? err.message : 'Failed to update ElevenLabs agent'
-      return NextResponse.json({ error: message }, { status: 502 })
+      return jsonError(502, { error: message, code: 'elevenlabs_error' }, requestId)
     }
 
     const description =
@@ -122,23 +152,29 @@ export async function PATCH(request: Request, ctx: { params: Promise<{ id: strin
 
     if (saveError) {
       console.error('Supabase update after ElevenLabs:', saveError)
-      return NextResponse.json(
-        { error: 'ElevenLabs was updated but saving to the database failed.' },
-        { status: 500 }
+      return jsonError(
+        500,
+        {
+          error: 'ElevenLabs was updated but saving to the database failed.',
+          code: 'db_update_failed',
+          details: saveError,
+        },
+        requestId
       )
     }
 
-    return NextResponse.json({ ok: true })
+    return jsonOk({ ok: true }, 200, requestId)
   } catch (err) {
     console.error('PATCH /api/admin/agents/[id] unhandled error:', err)
     const message = err instanceof Error ? err.message : 'Failed to update agent'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return jsonError(500, { error: message, code: 'internal_error' }, requestId)
   }
 }
 
 export async function DELETE(_request: Request, ctx: { params: Promise<{ id: string }> }) {
+  const requestId = createRequestId()
   try {
-    const gate = await requireAdminApi()
+    const gate = await requireAdminApiWithRequestId(requestId)
     if (!gate.ok) return gate.response
 
     const { id } = await ctx.params
@@ -151,7 +187,7 @@ export async function DELETE(_request: Request, ctx: { params: Promise<{ id: str
       .single()
 
     if (fetchError || !existing) {
-      return NextResponse.json({ error: 'Agent not found.' }, { status: 404 })
+      return jsonError(404, { error: 'Agent not found.', code: 'not_found' }, requestId)
     }
 
     const { error } = await adminClient
@@ -163,13 +199,17 @@ export async function DELETE(_request: Request, ctx: { params: Promise<{ id: str
       .eq('id', id)
 
     if (error) {
-      return NextResponse.json({ error: 'Failed to deactivate agent.' }, { status: 500 })
+      return jsonError(
+        500,
+        { error: 'Failed to deactivate agent.', code: 'db_update_failed', details: error },
+        requestId
+      )
     }
 
-    return NextResponse.json({ ok: true })
+    return jsonOk({ ok: true }, 200, requestId)
   } catch (err) {
     console.error('DELETE /api/admin/agents/[id] unhandled error:', err)
     const message = err instanceof Error ? err.message : 'Failed to deactivate agent'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return jsonError(500, { error: message, code: 'internal_error' }, requestId)
   }
 }

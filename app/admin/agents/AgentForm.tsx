@@ -53,18 +53,23 @@ export const AgentForm = ({ mode, agentId, initialValues }: AgentFormProps) => {
   }
 
   const readErrorMessage = async (res: Response, fallback: string) => {
+    const requestId = res.headers.get('x-request-id')
     const contentType = res.headers.get('content-type') ?? ''
     if (contentType.includes('application/json')) {
-      const data = (await res.json()) as { error?: unknown }
-      if (typeof data.error === 'string' && data.error.trim()) return data.error
-      return fallback
+      const data = (await res.json()) as { error?: unknown; requestId?: unknown; code?: unknown }
+      const base = typeof data.error === 'string' && data.error.trim() ? data.error : fallback
+      const id = (typeof data.requestId === 'string' && data.requestId) || requestId
+      const code = typeof data.code === 'string' && data.code ? ` [${data.code}]` : ''
+      return id ? `${base}${code} (request: ${id})` : `${base}${code}`
     }
 
     const text = await res.text()
     if (text.includes('<!doctype html') || text.includes('<html')) {
-      return `${fallback}. Server returned a non-JSON error (likely an unhandled server exception).`
+      return requestId
+        ? `${fallback}. Server returned a non-JSON error (likely an unhandled server exception). (request: ${requestId})`
+        : `${fallback}. Server returned a non-JSON error (likely an unhandled server exception).`
     }
-    return text.trim() || fallback
+    return requestId ? `${text.trim() || fallback} (request: ${requestId})` : text.trim() || fallback
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
