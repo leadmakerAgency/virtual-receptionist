@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { Suspense, useState, useEffect, useCallback, useMemo } from 'react'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -22,7 +22,7 @@ interface SessionSummary {
 
 const DEFAULT_LEVEL: ScenarioLevel = 'beginner'
 
-export default function PracticePage() {
+const PracticePageContent = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClient()
@@ -372,5 +372,22 @@ export default function PracticePage() {
         ) : null}
       </main>
     </>
+  )
+}
+
+export default function PracticePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-gray-50">
+          <div className="text-center">
+            <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-purple-600 border-t-transparent" />
+            <p className="text-gray-500">Loading practice session…</p>
+          </div>
+        </div>
+      }
+    >
+      <PracticePageContent />
+    </Suspense>
   )
 }
