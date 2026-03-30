@@ -1,9 +1,11 @@
 import { ElevenLabsClient } from '@elevenlabs/elevenlabs-js'
 
-if (!process.env.ELEVENLABS_API_KEY) {
-  throw new Error('ELEVENLABS_API_KEY is not set')
+export const getElevenLabsClient = () => {
+  const apiKey = process.env.ELEVENLABS_API_KEY
+  if (!apiKey) {
+    throw new Error(
+      'Missing ELEVENLABS_API_KEY on the server. Set it in the deployment environment variables.'
+    )
+  }
+  return new ElevenLabsClient({ apiKey })
 }
-
-export const elevenlabsClient = new ElevenLabsClient({
-  apiKey: process.env.ELEVENLABS_API_KEY,
-})

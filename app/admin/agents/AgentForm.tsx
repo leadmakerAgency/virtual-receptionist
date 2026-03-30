@@ -52,6 +52,21 @@ export const AgentForm = ({ mode, agentId, initialValues }: AgentFormProps) => {
     setValues((prev) => ({ ...prev, is_active: e.target.checked }))
   }
 
+  const readErrorMessage = async (res: Response, fallback: string) => {
+    const contentType = res.headers.get('content-type') ?? ''
+    if (contentType.includes('application/json')) {
+      const data = (await res.json()) as { error?: unknown }
+      if (typeof data.error === 'string' && data.error.trim()) return data.error
+      return fallback
+    }
+
+    const text = await res.text()
+    if (text.includes('<!doctype html') || text.includes('<html')) {
+      return `${fallback}. Server returned a non-JSON error (likely an unhandled server exception).`
+    }
+    return text.trim() || fallback
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
@@ -72,9 +87,8 @@ export const AgentForm = ({ mode, agentId, initialValues }: AgentFormProps) => {
             is_active: values.is_active,
           }),
         })
-        const data = await res.json()
         if (!res.ok) {
-          setError(typeof data.error === 'string' ? data.error : 'Failed to create agent')
+          setError(await readErrorMessage(res, 'Failed to create agent'))
           return
         }
         router.push('/admin/agents')
@@ -101,9 +115,8 @@ export const AgentForm = ({ mode, agentId, initialValues }: AgentFormProps) => {
           is_active: values.is_active,
         }),
       })
-      const data = await res.json()
       if (!res.ok) {
-        setError(typeof data.error === 'string' ? data.error : 'Failed to save')
+        setError(await readErrorMessage(res, 'Failed to save'))
         return
       }
       router.push('/admin/agents')
@@ -122,9 +135,8 @@ export const AgentForm = ({ mode, agentId, initialValues }: AgentFormProps) => {
     setLoading(true)
     try {
       const res = await fetch(`/api/admin/agents/${agentId}`, { method: 'DELETE' })
-      const data = await res.json()
       if (!res.ok) {
-        setError(typeof data.error === 'string' ? data.error : 'Failed to deactivate')
+        setError(await readErrorMessage(res, 'Failed to deactivate'))
         return
       }
       router.push('/admin/agents')

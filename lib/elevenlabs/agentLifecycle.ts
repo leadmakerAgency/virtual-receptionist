@@ -1,5 +1,5 @@
 import type { Json } from '@/types/database'
-import { elevenlabsClient } from '@/lib/elevenlabs/client'
+import { getElevenLabsClient } from '@/lib/elevenlabs/client'
 import { buildConversationConfig } from '@/lib/elevenlabs/conversationConfig'
 
 export const createElevenLabsAgentRecord = async (input: {
@@ -8,6 +8,7 @@ export const createElevenLabsAgentRecord = async (input: {
   firstMessage: string
   voiceId: string
 }) => {
+  const elevenlabsClient = getElevenLabsClient()
   const conversationConfig = buildConversationConfig(input)
   const created = await elevenlabsClient.conversationalAi.agents.create({
     name: input.name.trim(),
@@ -28,6 +29,7 @@ export const updateElevenLabsAgent = async (
     voiceId: string
   }
 ) => {
+  const elevenlabsClient = getElevenLabsClient()
   const conversationConfig = buildConversationConfig(input)
   const updated = await elevenlabsClient.conversationalAi.agents.update(agentId, {
     name: input.name?.trim(),
