@@ -1,10 +1,7 @@
 import { redirect } from 'next/navigation'
-import { Mic2 } from 'lucide-react'
 import { getSessionWithProfile, isAdminUser } from '@/lib/auth/isAdmin'
 import { AdminSignOutButton } from '@/app/admin/AdminSignOutButton'
-import { AdminNavLink } from '@/components/admin/AdminNavLink'
-
-const nav = [{ href: '/admin/agents', label: 'Agents', icon: Mic2 }]
+import { AdminSidebarNav } from '@/components/admin/AdminSidebarNav'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await getSessionWithProfile()
@@ -29,9 +26,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           />
         </div>
         <nav className="flex flex-1 flex-col gap-0.5 p-2" aria-label="Admin">
-          {nav.map(({ href, label, icon }) => (
-            <AdminNavLink key={href} href={href} label={label} icon={icon} />
-          ))}
+          <AdminSidebarNav />
         </nav>
         <div className="border-t border-violet-100/80 p-2">
           <AdminSignOutButton />
