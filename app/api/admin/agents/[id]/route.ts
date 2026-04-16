@@ -5,9 +5,9 @@ import { updateElevenLabsAgent } from '@/lib/elevenlabs/agentLifecycle'
 import { createRequestId, jsonError, jsonOk } from '@/lib/api/response'
 import { ElevenLabsError } from '@/lib/elevenlabs/httpFallback'
 import { generateUniqueCoachPublicId } from '@/lib/coachPublicId'
-import { isCoachSlug, isValidSlug } from '@/lib/validation/slug'
 
 type PatchBody = {
+  /** Ignored for persistence; if sent and differs from the row, rejected as immutable. */
   slug?: string
   name?: string
   prompt?: string
@@ -52,43 +52,13 @@ export async function PATCH(request: Request, ctx: { params: Promise<{ id: strin
       )
     }
 
-    const slug = body.slug !== undefined ? body.slug.trim().toLowerCase() : existing.slug
-    if (body.slug !== undefined) {
-      if (!slug || !isValidSlug(slug)) {
-        return jsonError(
-          400,
-          {
-            error: 'Slug must be lowercase letters, numbers, and single hyphens between words.',
-            code: 'invalid_slug',
-          },
-          requestId
-        )
-      }
-      if (!isCoachSlug(slug)) {
-        return jsonError(
-          400,
-          {
-            error: 'That slug is reserved for the application. Choose a different slug.',
-            code: 'reserved_slug',
-          },
-          requestId
-        )
-      }
-      if (slug !== existing.slug) {
-        const { data: clash } = await adminClient
-          .from('virtual_receptionists')
-          .select('id')
-          .eq('slug', slug)
-          .neq('id', id)
-          .maybeSingle()
-        if (clash) {
-          return jsonError(
-            409,
-            { error: 'That slug is already in use.', code: 'slug_conflict' },
-            requestId
-          )
-        }
-      }
+    const slug = existing.slug
+    if (body.slug !== undefined && body.slug.trim().toLowerCase() !== existing.slug) {
+      return jsonError(
+        400,
+        { error: 'Slug cannot be changed after creation.', code: 'slug_immutable' },
+        requestId
+      )
     }
 
     const name = body.name !== undefined ? body.name.trim() : existing.name

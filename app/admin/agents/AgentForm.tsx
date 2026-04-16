@@ -110,7 +110,6 @@ export const AgentForm = ({ mode, agentId, initialValues }: AgentFormProps) => {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          slug: values.slug.trim().toLowerCase(),
           name: values.name.trim(),
           prompt: values.prompt,
           first_message: values.first_message,
