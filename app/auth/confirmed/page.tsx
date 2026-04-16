@@ -37,8 +37,8 @@ export default async function AuthConfirmedPage({ searchParams }: PageProps) {
         </h1>
         <p className="mb-6 text-gray-600">
           {isSuccess
-            ? 'Your email is confirmed. You can now sign in and start practicing.'
-            : 'This confirmation link is invalid or expired. Please try signing up again or request a new confirmation email.'}
+            ? 'Your email is confirmed. You can now sign in on the admin login page.'
+            : 'This confirmation link is invalid or expired. Please contact an administrator or request a new confirmation email.'}
         </p>
 
         <div className="flex flex-col gap-3">

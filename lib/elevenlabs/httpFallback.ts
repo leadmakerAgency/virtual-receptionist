@@ -132,6 +132,22 @@ export const updateAgentViaHttpFallback = async (
   return fetchJson<unknown>(`/v1/convai/agents/${encodeURIComponent(agentId)}`, 'PATCH', request)
 }
 
+/** Server-only: mint a short-lived WebSocket signed URL for ConvAI (see ElevenLabs docs). */
+export const getConversationSignedUrl = async (agentId: string): Promise<string> => {
+  const data = await fetchJson<Record<string, unknown>>(
+    `/v1/convai/conversation/get-signed-url?agent_id=${encodeURIComponent(agentId)}`,
+    'GET'
+  )
+  const signedUrl = (data.signed_url ?? data.signedUrl) as unknown
+  if (typeof signedUrl !== 'string' || !signedUrl.trim()) {
+    throw new ElevenLabsError({
+      message: 'ElevenLabs did not return a signed URL',
+      code: 'missing_signed_url',
+    })
+  }
+  return signedUrl.trim()
+}
+
 export const publishAgentViaHttpBestEffort = async (agentId: string) => {
   try {
     await fetchJson<unknown>(

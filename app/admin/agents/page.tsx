@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { CoachLinkActions } from '@/components/admin/CoachLinkActions'
 
 export default async function AdminAgentsPage() {
   const supabase = createAdminClient()
@@ -50,13 +51,14 @@ export default async function AdminAgentsPage() {
               <TableHead>ElevenLabs ID</TableHead>
               <TableHead>Order</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead className="text-right">Coach link</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {(rows ?? []).length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-sm text-zinc-500">
+                <TableCell colSpan={7} className="text-center text-sm text-zinc-500">
                   No agents yet. Create one to get started.
                 </TableCell>
               </TableRow>
@@ -74,6 +76,13 @@ export default async function AdminAgentsPage() {
                       <Badge className="bg-emerald-600">Active</Badge>
                     ) : (
                       <Badge variant="secondary">Inactive</Badge>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {row.is_active ? (
+                      <CoachLinkActions slug={row.slug} />
+                    ) : (
+                      <span className="text-xs text-zinc-400">Activate to share</span>
                     )}
                   </TableCell>
                   <TableCell className="text-right">

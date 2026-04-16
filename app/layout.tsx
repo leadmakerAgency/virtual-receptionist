@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Cold Call Coach",
+  title: "LeadMaker LiveFire",
   description:
-    "Practice your cold calling script against an AI prospect powered by ElevenLabs.",
+    "Admin tools for LeadMaker LiveFire — manage ElevenLabs conversational agents.",
   icons: {
     icon: "/favicon.svg",
   },

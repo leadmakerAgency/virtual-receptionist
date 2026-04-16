@@ -9,7 +9,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { DEFAULT_VOICE_ID } from '@/lib/elevenlabs/conversationConfig'
-import { AgentUserAssignmentPanel } from '@/components/admin/AgentUserAssignmentPanel'
 
 export type AgentFormValues = {
   slug: string
@@ -136,7 +135,7 @@ export const AgentForm = ({ mode, agentId, initialValues }: AgentFormProps) => {
 
   const handleDeactivate = async () => {
     if (!agentId) return
-    if (!window.confirm('Deactivate this agent? Users will no longer see it in practice.')) return
+    if (!window.confirm('Deactivate this agent? It will be removed from ElevenLabs and marked inactive.')) return
     setError(null)
     setLoading(true)
     try {
@@ -195,7 +194,7 @@ export const AgentForm = ({ mode, agentId, initialValues }: AgentFormProps) => {
           onChange={handleChange('description')}
           className={textareaClass}
           rows={3}
-          placeholder="Short note for learners"
+          placeholder="Short internal note (optional)"
         />
       </div>
 
@@ -255,12 +254,10 @@ export const AgentForm = ({ mode, agentId, initialValues }: AgentFormProps) => {
             className="size-4 rounded border-zinc-300"
           />
           <Label htmlFor="is_active" className="cursor-pointer font-normal">
-            Active (visible to users)
+            Active
           </Label>
         </div>
       </div>
-
-      {mode === 'edit' && agentId ? <AgentUserAssignmentPanel agentId={agentId} /> : null}
 
       <div className="flex flex-wrap gap-3">
         <Button type="submit" disabled={loading}>

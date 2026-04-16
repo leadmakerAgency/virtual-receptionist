@@ -8,7 +8,7 @@ export default function AdminHomePage() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">Overview</h1>
         <p className="mt-1 text-sm text-zinc-600">
-          Manage ElevenLabs conversational agents and how they appear to learners.
+          Manage ElevenLabs conversational agents and their configuration in Supabase.
         </p>
       </div>
 
@@ -16,8 +16,8 @@ export default function AdminHomePage() {
         <CardHeader>
           <CardTitle className="text-lg">Agents</CardTitle>
           <CardDescription>
-            Create agents with prompt, first line, and voice. Each agent syncs to ElevenLabs and
-            appears in the practice app for users.
+            Create agents with prompt, first line, and voice. Each agent syncs to ElevenLabs and is
+            stored in your database for operations and integrations.
           </CardDescription>
         </CardHeader>
         <CardContent>

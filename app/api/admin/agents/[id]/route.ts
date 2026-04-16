@@ -4,7 +4,7 @@ import { requireAdminApiWithRequestId } from '@/lib/auth/requireAdminApi'
 import { updateElevenLabsAgent } from '@/lib/elevenlabs/agentLifecycle'
 import { createRequestId, jsonError, jsonOk } from '@/lib/api/response'
 import { ElevenLabsError } from '@/lib/elevenlabs/httpFallback'
-import { isValidSlug } from '@/lib/validation/slug'
+import { isCoachSlug, isValidSlug } from '@/lib/validation/slug'
 
 type PatchBody = {
   slug?: string
@@ -59,6 +59,16 @@ export async function PATCH(request: Request, ctx: { params: Promise<{ id: strin
           {
             error: 'Slug must be lowercase letters, numbers, and single hyphens between words.',
             code: 'invalid_slug',
+          },
+          requestId
+        )
+      }
+      if (!isCoachSlug(slug)) {
+        return jsonError(
+          400,
+          {
+            error: 'That slug is reserved for the application. Choose a different slug.',
+            code: 'reserved_slug',
           },
           requestId
         )

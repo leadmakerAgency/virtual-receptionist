@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextRequest, NextResponse } from 'next/server'
+import { getSinglePathSegment, isCoachSlug } from '@/lib/validation/slug'
 
 export async function middleware(request: NextRequest) {
   try {
@@ -37,7 +38,11 @@ export async function middleware(request: NextRequest) {
       data: { user },
     } = await supabase.auth.getUser()
 
-    const isPublicRoute = pathname === '/login' || pathname.startsWith('/auth/')
+    const coachSegment = getSinglePathSegment(pathname)
+    const isPublicCoachPath = coachSegment !== null && isCoachSlug(coachSegment)
+
+    const isPublicRoute =
+      pathname === '/login' || pathname.startsWith('/auth/') || isPublicCoachPath
 
     if (!user && !isPublicRoute) {
       const loginUrl = request.nextUrl.clone()
@@ -46,9 +51,9 @@ export async function middleware(request: NextRequest) {
     }
 
     if (user && pathname === '/login') {
-      const homeUrl = request.nextUrl.clone()
-      homeUrl.pathname = '/practice'
-      return NextResponse.redirect(homeUrl)
+      const adminUrl = request.nextUrl.clone()
+      adminUrl.pathname = '/admin'
+      return NextResponse.redirect(adminUrl)
     }
 
     return supabaseResponse
