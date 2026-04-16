@@ -18,13 +18,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div className="flex min-h-screen bg-gradient-to-br from-admin-accent-faint/80 via-zinc-50 to-purple-50/60 text-zinc-900">
       <aside className="flex w-56 flex-col border-r border-violet-200/50 bg-white/85 shadow-[4px_0_32px_-16px_rgba(115,34,218,0.18)] backdrop-blur-sm">
         <div className="border-b border-violet-100/80 px-4 pb-5 pt-4">
-          <div className="mb-3 flex justify-end">
+          <div className="mb-3 flex justify-start">
             <Image
               src={LEADMAKER_LOGO_URL}
               alt="LeadMaker logo"
               width={180}
               height={180}
-              className="h-11 w-auto object-contain object-right"
+              className="h-11 w-auto object-contain object-left"
               priority
             />
           </div>
