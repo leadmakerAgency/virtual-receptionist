@@ -1,13 +1,10 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { LayoutDashboard, Mic2 } from 'lucide-react'
+import { Mic2 } from 'lucide-react'
 import { getSessionWithProfile, isAdminUser } from '@/lib/auth/isAdmin'
 import { AdminSignOutButton } from '@/app/admin/AdminSignOutButton'
 
-const nav = [
-  { href: '/admin', label: 'Overview', icon: LayoutDashboard },
-  { href: '/admin/agents', label: 'Agents', icon: Mic2 },
-]
+const nav = [{ href: '/admin/agents', label: 'Agents', icon: Mic2 }]
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await getSessionWithProfile()

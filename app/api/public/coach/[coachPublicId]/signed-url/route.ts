@@ -1,17 +1,17 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { ElevenLabsError, getConversationSignedUrl } from '@/lib/elevenlabs/httpFallback'
 import { createRequestId, jsonError, jsonOk } from '@/lib/api/response'
-import { isCoachSlug } from '@/lib/validation/slug'
+import { isCoachPublicId } from '@/lib/validation/coachPublicId'
 
-type Ctx = { params: Promise<{ slug: string }> }
+type Ctx = { params: Promise<{ coachPublicId: string }> }
 
 export async function GET(_request: Request, ctx: Ctx) {
   const requestId = createRequestId()
   try {
-    const { slug: raw } = await ctx.params
-    const slug = decodeURIComponent(raw ?? '').trim().toLowerCase()
+    const { coachPublicId: raw } = await ctx.params
+    const coachPublicId = decodeURIComponent(raw ?? '').trim()
 
-    if (!slug || !isCoachSlug(slug)) {
+    if (!coachPublicId || !isCoachPublicId(coachPublicId)) {
       return jsonError(404, { error: 'Not found', code: 'not_found' }, requestId)
     }
 
@@ -19,7 +19,7 @@ export async function GET(_request: Request, ctx: Ctx) {
     const { data: row, error } = await adminClient
       .from('virtual_receptionists')
       .select('agent_id, is_active')
-      .eq('slug', slug)
+      .eq('coach_public_id', coachPublicId)
       .maybeSingle()
 
     if (error || !row || !row.is_active || !row.agent_id) {

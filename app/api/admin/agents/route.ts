@@ -4,6 +4,7 @@ import { requireAdminApiWithRequestId } from '@/lib/auth/requireAdminApi'
 import { createElevenLabsAgentRecord } from '@/lib/elevenlabs/agentLifecycle'
 import { createRequestId, jsonError, jsonOk } from '@/lib/api/response'
 import { ElevenLabsError } from '@/lib/elevenlabs/httpFallback'
+import { generateUniqueCoachPublicId } from '@/lib/coachPublicId'
 import { isCoachSlug, isValidSlug } from '@/lib/validation/slug'
 
 type CreateBody = {
@@ -84,6 +85,15 @@ export async function POST(request: Request) {
       return jsonError(409, { error: 'That slug is already in use.', code: 'slug_conflict' }, requestId)
     }
 
+    const coach_public_id = await generateUniqueCoachPublicId(async (candidate) => {
+      const { data: clash } = await adminClient
+        .from('virtual_receptionists')
+        .select('id')
+        .eq('coach_public_id', candidate)
+        .maybeSingle()
+      return Boolean(clash)
+    })
+
     let agentId: string
     let agentConfigSnapshot: Json
 
@@ -120,6 +130,7 @@ export async function POST(request: Request) {
       .from('virtual_receptionists')
       .insert({
         slug,
+        coach_public_id,
         name,
         prompt,
         first_message,

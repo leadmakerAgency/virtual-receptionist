@@ -16,6 +16,7 @@ export interface Database {
         Row: {
           id: string
           slug: string
+          coach_public_id: string | null
           name: string
           agent_id: string | null
           agent_config: Json | null
@@ -32,6 +33,7 @@ export interface Database {
         Insert: {
           id?: string
           slug: string
+          coach_public_id?: string | null
           name: string
           agent_id?: string | null
           agent_config?: Json | null
@@ -48,6 +50,7 @@ export interface Database {
         Update: {
           id?: string
           slug?: string
+          coach_public_id?: string | null
           name?: string
           agent_id?: string | null
           agent_config?: Json | null

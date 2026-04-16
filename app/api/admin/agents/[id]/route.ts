@@ -4,6 +4,7 @@ import { requireAdminApiWithRequestId } from '@/lib/auth/requireAdminApi'
 import { updateElevenLabsAgent } from '@/lib/elevenlabs/agentLifecycle'
 import { createRequestId, jsonError, jsonOk } from '@/lib/api/response'
 import { ElevenLabsError } from '@/lib/elevenlabs/httpFallback'
+import { generateUniqueCoachPublicId } from '@/lib/coachPublicId'
 import { isCoachSlug, isValidSlug } from '@/lib/validation/slug'
 
 type PatchBody = {
@@ -144,10 +145,24 @@ export async function PATCH(request: Request, ctx: { params: Promise<{ id: strin
       typeof body.sort_order === 'number' ? body.sort_order : existing.sort_order ?? 0
     const is_active = body.is_active !== undefined ? body.is_active : existing.is_active
 
+    let coach_public_id = existing.coach_public_id
+    if (!coach_public_id) {
+      coach_public_id = await generateUniqueCoachPublicId(async (candidate) => {
+        const { data: clash } = await adminClient
+          .from('virtual_receptionists')
+          .select('id')
+          .eq('coach_public_id', candidate)
+          .neq('id', id)
+          .maybeSingle()
+        return Boolean(clash)
+      })
+    }
+
     const { error: saveError } = await adminClient
       .from('virtual_receptionists')
       .update({
         slug,
+        coach_public_id,
         name,
         prompt,
         first_message,

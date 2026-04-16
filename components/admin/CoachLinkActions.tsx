@@ -4,17 +4,15 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Check, Copy, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { buildCoachUrl } from '@/lib/public/coachUrl'
-
 type CoachLinkActionsProps = {
-  slug: string
+  coachPublicId: string
 }
 
-export const CoachLinkActions = ({ slug }: CoachLinkActionsProps) => {
-  const url = buildCoachUrl(slug)
+export const CoachLinkActions = ({ coachPublicId }: CoachLinkActionsProps) => {
   const [copied, setCopied] = useState(false)
 
   const handleCopy = async () => {
+    const url = `${window.location.origin}/${coachPublicId}`
     try {
       await navigator.clipboard.writeText(url)
       setCopied(true)
@@ -27,7 +25,7 @@ export const CoachLinkActions = ({ slug }: CoachLinkActionsProps) => {
   return (
     <div className="flex flex-wrap items-center justify-end gap-2">
       <Button variant="outline" size="sm" asChild>
-        <Link href={`/${slug}`} target="_blank" rel="noopener noreferrer">
+        <Link href={`/${coachPublicId}`} target="_blank" rel="noopener noreferrer">
           <ExternalLink className="mr-1 size-3.5" aria-hidden />
           Open
         </Link>

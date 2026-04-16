@@ -16,7 +16,7 @@ export default async function AdminAgentsPage() {
   const supabase = createAdminClient()
   const { data: rows, error } = await supabase
     .from('virtual_receptionists')
-    .select('id, slug, name, agent_id, is_active, sort_order, updated_at')
+    .select('id, slug, coach_public_id, name, agent_id, is_active, sort_order, updated_at')
     .order('sort_order', { ascending: true })
     .order('name', { ascending: true })
 
@@ -79,8 +79,12 @@ export default async function AdminAgentsPage() {
                     )}
                   </TableCell>
                   <TableCell className="text-right">
-                    {row.is_active ? (
-                      <CoachLinkActions slug={row.slug} />
+                    {row.is_active && row.coach_public_id ? (
+                      <CoachLinkActions coachPublicId={row.coach_public_id} />
+                    ) : row.is_active && !row.coach_public_id ? (
+                      <span className="text-xs text-amber-600">
+                        Run DB migration (coach_public_id), then save agent
+                      </span>
                     ) : (
                       <span className="text-xs text-zinc-400">Activate to share</span>
                     )}
