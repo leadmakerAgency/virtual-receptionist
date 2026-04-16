@@ -4,7 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { AgentForm } from '@/app/admin/agents/AgentForm'
 import { DEFAULT_VOICE_ID } from '@/lib/elevenlabs/conversationConfig'
 import { CoachLinkActions } from '@/components/admin/CoachLinkActions'
-import { buildCoachUrl } from '@/lib/public/coachUrl'
+import { buildCoachUrlForCurrentRequest } from '@/lib/public/coachUrlForRequest'
 
 type Props = { params: Promise<{ id: string }> }
 
@@ -16,6 +16,11 @@ export default async function EditAgentPage({ params }: Props) {
   if (error || !row) {
     notFound()
   }
+
+  const coachDisplayUrl =
+    row.coach_public_id != null && row.coach_public_id !== ''
+      ? await buildCoachUrlForCurrentRequest(row.coach_public_id)
+      : null
 
   return (
     <div className="space-y-8">
@@ -37,7 +42,7 @@ export default async function EditAgentPage({ params }: Props) {
       <div className="rounded-2xl border border-violet-200/50 bg-white/90 p-5 shadow-md shadow-violet-900/[0.05] ring-1 ring-violet-100/80">
         <p className="text-xs font-semibold uppercase tracking-wider text-violet-900/60">Public coach URL</p>
         <p className="mt-1 break-all font-mono text-sm text-zinc-800">
-          {row.coach_public_id ? buildCoachUrl(row.coach_public_id) : '— (apply Supabase migration + save agent)'}
+          {coachDisplayUrl ?? '— (apply Supabase migration + save agent)'}
         </p>
         <p className="mt-1 text-xs text-zinc-500">
           Anyone with this link can open the practice page for this agent when it is active.
