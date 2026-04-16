@@ -22,18 +22,21 @@ export const CoachLinkActions = ({ coachPublicId }: CoachLinkActionsProps) => {
     }
   }
 
+  const outlineAccent =
+    'border-violet-300/80 text-violet-900 hover:border-admin-accent/50 hover:bg-admin-accent-faint/90 hover:text-admin-accent'
+
   return (
     <div className="flex flex-wrap items-center justify-end gap-2">
-      <Button variant="outline" size="sm" asChild>
+      <Button variant="outline" size="sm" asChild className={outlineAccent}>
         <Link href={`/${coachPublicId}`} target="_blank" rel="noopener noreferrer">
           <ExternalLink className="mr-1 size-3.5" aria-hidden />
           Open
         </Link>
       </Button>
-      <Button variant="outline" size="sm" type="button" onClick={handleCopy}>
+      <Button variant="outline" size="sm" type="button" onClick={handleCopy} className={outlineAccent}>
         {copied ? (
           <>
-            <Check className="mr-1 size-3.5 text-emerald-600" aria-hidden />
+            <Check className="mr-1 size-3.5 text-admin-accent" aria-hidden />
             Copied
           </>
         ) : (

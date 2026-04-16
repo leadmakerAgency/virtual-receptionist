@@ -29,53 +29,84 @@ export default async function AdminAgentsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">Agents</h1>
-          <p className="mt-1 text-sm text-zinc-600">
+    <div className="space-y-8">
+      <div className="flex flex-wrap items-end justify-between gap-6">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-semibold tracking-tight">
+            <span className="bg-gradient-to-r from-zinc-900 via-admin-accent to-admin-accent-mid bg-clip-text text-transparent">
+              Agents
+            </span>
+          </h1>
+          <p className="max-w-xl text-sm leading-relaxed text-zinc-600">
             ElevenLabs conversational agents and their local metadata.
           </p>
         </div>
-        <Button asChild>
+        <Button
+          asChild
+          className="rounded-lg border-0 bg-gradient-to-r from-admin-accent via-admin-accent-mid to-admin-accent-light text-white shadow-md shadow-admin-accent/25 transition-[box-shadow,filter] hover:brightness-[1.05] hover:shadow-lg hover:shadow-admin-accent/30 focus-visible:ring-admin-accent/40"
+        >
           <Link href="/admin/agents/new">Create agent</Link>
         </Button>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white">
+      <div className="overflow-hidden rounded-2xl border border-violet-200/50 bg-white/90 shadow-lg shadow-violet-900/[0.06] ring-1 ring-violet-100/80 backdrop-blur-sm">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Slug</TableHead>
-              <TableHead>ElevenLabs ID</TableHead>
-              <TableHead>Order</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Coach link</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+            <TableRow className="border-b border-violet-200/50 bg-gradient-to-r from-violet-50/90 via-purple-50/50 to-admin-accent-faint/40 hover:bg-gradient-to-r hover:from-violet-50/90 hover:via-purple-50/50 hover:to-admin-accent-faint/40">
+              <TableHead className="h-11 text-xs font-semibold uppercase tracking-wider text-violet-900/70">
+                Name
+              </TableHead>
+              <TableHead className="h-11 text-xs font-semibold uppercase tracking-wider text-violet-900/70">
+                Slug
+              </TableHead>
+              <TableHead className="h-11 text-xs font-semibold uppercase tracking-wider text-violet-900/70">
+                ElevenLabs ID
+              </TableHead>
+              <TableHead className="h-11 text-xs font-semibold uppercase tracking-wider text-violet-900/70">
+                Order
+              </TableHead>
+              <TableHead className="h-11 text-xs font-semibold uppercase tracking-wider text-violet-900/70">
+                Status
+              </TableHead>
+              <TableHead className="h-11 text-right text-xs font-semibold uppercase tracking-wider text-violet-900/70">
+                Coach link
+              </TableHead>
+              <TableHead className="h-11 text-right text-xs font-semibold uppercase tracking-wider text-violet-900/70">
+                Actions
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {(rows ?? []).length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center text-sm text-zinc-500">
+              <TableRow className="hover:bg-transparent">
+                <TableCell colSpan={7} className="py-12 text-center text-sm text-zinc-500">
                   No agents yet. Create one to get started.
                 </TableCell>
               </TableRow>
             ) : (
               rows!.map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell className="font-medium">{row.name}</TableCell>
-                  <TableCell className="text-zinc-600">{row.slug}</TableCell>
+                <TableRow
+                  key={row.id}
+                  className="border-b border-violet-100/60 transition-colors hover:bg-gradient-to-r hover:from-violet-50/40 hover:to-transparent"
+                >
+                  <TableCell className="font-medium text-zinc-900">{row.name}</TableCell>
+                  <TableCell className="font-mono text-xs text-violet-900/75">{row.slug}</TableCell>
                   <TableCell className="max-w-[200px] truncate font-mono text-xs text-zinc-500">
                     {row.agent_id ?? '—'}
                   </TableCell>
-                  <TableCell>{row.sort_order}</TableCell>
+                  <TableCell className="tabular-nums text-zinc-700">{row.sort_order}</TableCell>
                   <TableCell>
                     {row.is_active ? (
-                      <Badge className="bg-emerald-600">Active</Badge>
+                      <Badge className="border-0 bg-gradient-to-r from-admin-accent to-admin-accent-mid text-white shadow-sm shadow-admin-accent/25">
+                        Active
+                      </Badge>
                     ) : (
-                      <Badge variant="secondary">Inactive</Badge>
+                      <Badge
+                        variant="secondary"
+                        className="border border-violet-200/80 bg-violet-50/80 text-violet-800"
+                      >
+                        Inactive
+                      </Badge>
                     )}
                   </TableCell>
                   <TableCell className="text-right">
@@ -90,7 +121,12 @@ export default async function AdminAgentsPage() {
                     )}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="outline" size="sm" asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      asChild
+                      className="border-violet-300/80 text-violet-900 hover:border-admin-accent/50 hover:bg-admin-accent-faint/90 hover:text-admin-accent"
+                    >
                       <Link href={`/admin/agents/${row.id}/edit`}>Edit</Link>
                     </Button>
                   </TableCell>

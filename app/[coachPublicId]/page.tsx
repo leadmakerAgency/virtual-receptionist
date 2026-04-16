@@ -11,7 +11,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { coachPublicId: raw } = await params
   const coachPublicId = decodeURIComponent(raw ?? '').trim()
   if (!isCoachPublicId(coachPublicId)) {
-    return { title: 'Cold Call Coach' }
+    return { title: 'LeadMaker LiveFire' }
   }
 
   const supabase = createAdminClient()
@@ -22,12 +22,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .maybeSingle()
 
   if (!row || !row.is_active) {
-    return { title: 'Cold Call Coach' }
+    return { title: 'LeadMaker LiveFire' }
   }
 
   return {
-    title: `${row.name} · Cold Call Coach`,
-    description: 'Practice your pitch with an AI prospect powered by ElevenLabs.',
+    title: `${row.name} · LeadMaker LiveFire`,
+    description: 'Practice your pitch with an AI prospect — LeadMaker LiveFire, powered by ElevenLabs.',
   }
 }
 

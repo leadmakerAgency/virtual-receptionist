@@ -97,7 +97,7 @@ export const CoachPracticeFlow = ({ publicCoachId, agent }: CoachPracticeFlowPro
               height={120}
               className="h-10 w-auto object-contain"
             />
-            <span className="font-semibold text-gray-900">Cold Call Coach</span>
+            <span className="font-semibold text-gray-900">LeadMaker LiveFire</span>
           </div>
         </header>
 
@@ -133,7 +133,7 @@ export const CoachPracticeFlow = ({ publicCoachId, agent }: CoachPracticeFlowPro
               height={120}
               className="h-10 w-auto object-contain"
             />
-            <span className="font-semibold text-gray-900">Cold Call Coach</span>
+            <span className="font-semibold text-gray-900">LeadMaker LiveFire</span>
           </div>
         </header>
       )}

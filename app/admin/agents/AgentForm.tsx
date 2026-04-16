@@ -260,11 +260,21 @@ export const AgentForm = ({ mode, agentId, initialValues }: AgentFormProps) => {
       </div>
 
       <div className="flex flex-wrap gap-3">
-        <Button type="submit" disabled={loading}>
+        <Button
+          type="submit"
+          disabled={loading}
+          className="border-0 bg-gradient-to-r from-admin-accent via-admin-accent-mid to-admin-accent-light text-white shadow-md shadow-admin-accent/25 hover:brightness-[1.05] hover:shadow-lg hover:shadow-admin-accent/30 focus-visible:ring-admin-accent/40 disabled:opacity-60"
+        >
           {loading && <Loader2 className="mr-2 size-4 animate-spin" />}
           {mode === 'create' ? 'Create agent' : 'Save changes'}
         </Button>
-        <Button type="button" variant="outline" onClick={() => router.back()} disabled={loading}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => router.back()}
+          disabled={loading}
+          className="border-violet-300/80 text-violet-900 hover:border-admin-accent/50 hover:bg-admin-accent-faint/90 hover:text-admin-accent"
+        >
           Cancel
         </Button>
         {mode === 'edit' && agentId && (

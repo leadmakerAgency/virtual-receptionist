@@ -20,17 +20,22 @@ export default async function EditAgentPage({ params }: Props) {
   return (
     <div className="space-y-8">
       <div>
-        <Link href="/admin/agents" className="text-sm text-zinc-600 hover:text-zinc-900">
+        <Link
+          href="/admin/agents"
+          className="text-sm text-violet-700/90 transition-colors hover:text-admin-accent"
+        >
           ← Back to agents
         </Link>
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight text-zinc-900">Edit agent</h1>
+        <h1 className="mt-1 bg-gradient-to-r from-zinc-900 via-admin-accent to-admin-accent-mid bg-clip-text text-2xl font-semibold tracking-tight text-transparent">
+          Edit agent
+        </h1>
         <p className="mt-1 text-sm text-zinc-600">
           Updates ElevenLabs and Supabase. Slug cannot be changed after creation.
         </p>
       </div>
 
-      <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
-        <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">Public coach URL</p>
+      <div className="rounded-2xl border border-violet-200/50 bg-white/90 p-5 shadow-md shadow-violet-900/[0.05] ring-1 ring-violet-100/80">
+        <p className="text-xs font-semibold uppercase tracking-wider text-violet-900/60">Public coach URL</p>
         <p className="mt-1 break-all font-mono text-sm text-zinc-800">
           {row.coach_public_id ? buildCoachUrl(row.coach_public_id) : '— (apply Supabase migration + save agent)'}
         </p>

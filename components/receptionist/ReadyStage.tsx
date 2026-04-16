@@ -36,8 +36,8 @@ export const ReadyStage = ({
               <div className="flex items-center gap-3">
                 <PhoneCall className="h-6 w-6" />
                 <div>
-                  <h2 className="text-xl font-bold">Cold Call Simulation</h2>
-                  <p className="text-sm text-purple-100">AI-Powered Practice</p>
+                  <h2 className="text-xl font-bold">LeadMaker LiveFire</h2>
+                  <p className="text-sm text-purple-100">AI-powered practice</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">

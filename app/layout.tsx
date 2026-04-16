@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "LeadMaker LiveFire",
   description:
-    "Admin tools for LeadMaker LiveFire — manage ElevenLabs conversational agents.",
+    "LeadMaker LiveFire — admin tools for ElevenLabs agents and shareable AI practice sessions.",
   icons: {
     icon: "/favicon.svg",
   },
