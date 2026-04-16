@@ -1,5 +1,7 @@
+import Image from 'next/image'
 import { redirect } from 'next/navigation'
 import { getSessionWithProfile, isAdminUser } from '@/lib/auth/isAdmin'
+import { LEADMAKER_LOGO_URL } from '@/lib/branding/leadmakerLogoUrl'
 import { AdminSignOutButton } from '@/app/admin/AdminSignOutButton'
 import { AdminSidebarNav } from '@/components/admin/AdminSidebarNav'
 
@@ -15,7 +17,17 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-admin-accent-faint/80 via-zinc-50 to-purple-50/60 text-zinc-900">
       <aside className="flex w-56 flex-col border-r border-violet-200/50 bg-white/85 shadow-[4px_0_32px_-16px_rgba(115,34,218,0.18)] backdrop-blur-sm">
-        <div className="border-b border-violet-100/80 px-4 py-5">
+        <div className="border-b border-violet-100/80 px-4 pb-5 pt-4">
+          <div className="mb-3 flex justify-end">
+            <Image
+              src={LEADMAKER_LOGO_URL}
+              alt="LeadMaker logo"
+              width={180}
+              height={180}
+              className="h-11 w-auto object-contain object-right"
+              priority
+            />
+          </div>
           <p className="text-xs font-medium uppercase tracking-wide text-violet-600/80">Admin</p>
           <p className="mt-1 truncate bg-gradient-to-r from-zinc-900 via-admin-accent to-admin-accent-mid bg-clip-text text-sm font-semibold text-transparent">
             LeadMaker LiveFire

@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Loader2 } from 'lucide-react'
+import { LEADMAKER_LOGO_URL } from '@/lib/branding/leadmakerLogoUrl'
 
 type LoginFormProps = {
   notice?: string
@@ -65,7 +66,7 @@ export const LoginForm = ({ notice }: LoginFormProps) => {
         <div className="mb-8 text-center">
           <div className="mb-4 inline-flex items-center justify-center">
             <Image
-              src="https://cdn.prod.website-files.com/635b136ad9dc07c8ea095fdb/6734c390a167ec14434b314a_LeadMaker%20Vector%20Logo-01%20-%20Copy-p-500.png"
+              src={LEADMAKER_LOGO_URL}
               alt="LeadMaker logo"
               width={180}
               height={180}
