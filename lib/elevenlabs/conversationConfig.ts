@@ -2,7 +2,8 @@ import type { ConversationalConfig } from '@elevenlabs/elevenlabs-js/api/types/C
 import type { Json } from '@/types/database'
 
 export const DEFAULT_VOICE_ID = '21m00Tcm4TlvDq8ikWAM'
-export const DEFAULT_TTS_MODEL = 'eleven_turbo_v2_5'
+/** English ConvAI agents: ElevenLabs accepts flash/turbo v2, not *_v2_5. */
+export const DEFAULT_TTS_MODEL = 'eleven_flash_v2'
 
 export const buildConversationConfig = (input: {
   prompt: string
